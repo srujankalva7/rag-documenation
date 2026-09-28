@@ -1,0 +1,752 @@
+[
+  {
+    "id": "python-types",
+    "title": "Python Types Intro",
+    "url": "https://fastapi.tiangolo.com/python-types/",
+    "category": "tutorial"
+  },
+  {
+    "id": "concurrency-async-await",
+    "title": "Concurrency and async / await",
+    "url": "https://fastapi.tiangolo.com/async/",
+    "category": "tutorial"
+  },
+  {
+    "id": "first-steps",
+    "title": "First Steps",
+    "url": "https://fastapi.tiangolo.com/tutorial/first-steps/",
+    "category": "tutorial"
+  },
+  {
+    "id": "path-parameters",
+    "title": "Path Parameters",
+    "url": "https://fastapi.tiangolo.com/tutorial/path-params/",
+    "category": "tutorial"
+  },
+  {
+    "id": "query-parameters",
+    "title": "Query Parameters",
+    "url": "https://fastapi.tiangolo.com/tutorial/query-params/",
+    "category": "tutorial"
+  },
+  {
+    "id": "request-body",
+    "title": "Request Body",
+    "url": "https://fastapi.tiangolo.com/tutorial/body/",
+    "category": "tutorial"
+  },
+  {
+    "id": "query-string-validations",
+    "title": "Query Parameters and String Validations",
+    "url": "https://fastapi.tiangolo.com/tutorial/query-params-str-validations/",
+    "category": "tutorial"
+  },
+  {
+    "id": "path-numeric-validations",
+    "title": "Path Parameters and Numeric Validations",
+    "url": "https://fastapi.tiangolo.com/tutorial/path-params-numeric-validations/",
+    "category": "tutorial"
+  },
+  {
+    "id": "query-parameter-models",
+    "title": "Query Parameter Models",
+    "url": "https://fastapi.tiangolo.com/tutorial/query-param-models/",
+    "category": "tutorial"
+  },
+  {
+    "id": "body-multiple-parameters",
+    "title": "Body - Multiple Parameters",
+    "url": "https://fastapi.tiangolo.com/tutorial/body-multiple-params/",
+    "category": "tutorial"
+  },
+  {
+    "id": "body-fields",
+    "title": "Body - Fields",
+    "url": "https://fastapi.tiangolo.com/tutorial/body-fields/",
+    "category": "tutorial"
+  },
+  {
+    "id": "body-nested-models",
+    "title": "Body - Nested Models",
+    "url": "https://fastapi.tiangolo.com/tutorial/body-nested-models/",
+    "category": "tutorial"
+  },
+  {
+    "id": "request-example-data",
+    "title": "Declare Request Example Data",
+    "url": "https://fastapi.tiangolo.com/tutorial/schema-extra-example/",
+    "category": "tutorial"
+  },
+  {
+    "id": "extra-data-types",
+    "title": "Extra Data Types",
+    "url": "https://fastapi.tiangolo.com/tutorial/extra-data-types/",
+    "category": "tutorial"
+  },
+  {
+    "id": "cookie-parameters",
+    "title": "Cookie Parameters",
+    "url": "https://fastapi.tiangolo.com/tutorial/cookie-params/",
+    "category": "tutorial"
+  },
+  {
+    "id": "header-parameters",
+    "title": "Header Parameters",
+    "url": "https://fastapi.tiangolo.com/tutorial/header-params/",
+    "category": "tutorial"
+  },
+  {
+    "id": "cookie-parameter-models",
+    "title": "Cookie Parameter Models",
+    "url": "https://fastapi.tiangolo.com/tutorial/cookie-param-models/",
+    "category": "tutorial"
+  },
+  {
+    "id": "header-parameter-models",
+    "title": "Header Parameter Models",
+    "url": "https://fastapi.tiangolo.com/tutorial/header-param-models/",
+    "category": "tutorial"
+  },
+  {
+    "id": "response-model",
+    "title": "Response Model - Return Type",
+    "url": "https://fastapi.tiangolo.com/tutorial/response-model/",
+    "category": "tutorial"
+  },
+  {
+    "id": "extra-models",
+    "title": "Extra Models",
+    "url": "https://fastapi.tiangolo.com/tutorial/extra-models/",
+    "category": "tutorial"
+  },
+  {
+    "id": "response-status-code",
+    "title": "Response Status Code",
+    "url": "https://fastapi.tiangolo.com/tutorial/response-status-code/",
+    "category": "tutorial"
+  },
+  {
+    "id": "form-data",
+    "title": "Form Data",
+    "url": "https://fastapi.tiangolo.com/tutorial/request-forms/",
+    "category": "tutorial"
+  },
+  {
+    "id": "form-models",
+    "title": "Form Models",
+    "url": "https://fastapi.tiangolo.com/tutorial/request-form-models/",
+    "category": "tutorial"
+  },
+  {
+    "id": "request-files",
+    "title": "Request Files",
+    "url": "https://fastapi.tiangolo.com/tutorial/request-files/",
+    "category": "tutorial"
+  },
+  {
+    "id": "request-forms-and-files",
+    "title": "Request Forms and Files",
+    "url": "https://fastapi.tiangolo.com/tutorial/request-forms-and-files/",
+    "category": "tutorial"
+  },
+  {
+    "id": "handling-errors",
+    "title": "Handling Errors",
+    "url": "https://fastapi.tiangolo.com/tutorial/handling-errors/",
+    "category": "tutorial"
+  },
+  {
+    "id": "path-operation-configuration",
+    "title": "Path Operation Configuration",
+    "url": "https://fastapi.tiangolo.com/tutorial/path-operation-configuration/",
+    "category": "tutorial"
+  },
+  {
+    "id": "json-compatible-encoder",
+    "title": "JSON Compatible Encoder",
+    "url": "https://fastapi.tiangolo.com/tutorial/encoder/",
+    "category": "tutorial"
+  },
+  {
+    "id": "body-updates",
+    "title": "Body - Updates",
+    "url": "https://fastapi.tiangolo.com/tutorial/body-updates/",
+    "category": "tutorial"
+  },
+  {
+    "id": "dependencies",
+    "title": "Dependencies",
+    "url": "https://fastapi.tiangolo.com/tutorial/dependencies/",
+    "category": "tutorial"
+  },
+  {
+    "id": "classes-as-dependencies",
+    "title": "Classes as Dependencies",
+    "url": "https://fastapi.tiangolo.com/tutorial/dependencies/classes-as-dependencies/",
+    "category": "tutorial"
+  },
+  {
+    "id": "sub-dependencies",
+    "title": "Sub-dependencies",
+    "url": "https://fastapi.tiangolo.com/tutorial/dependencies/sub-dependencies/",
+    "category": "tutorial"
+  },
+  {
+    "id": "dependencies-in-decorators",
+    "title": "Dependencies in path operation decorators",
+    "url": "https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-in-path-operation-decorators/",
+    "category": "tutorial"
+  },
+  {
+    "id": "global-dependencies",
+    "title": "Global Dependencies",
+    "url": "https://fastapi.tiangolo.com/tutorial/dependencies/global-dependencies/",
+    "category": "tutorial"
+  },
+  {
+    "id": "dependencies-with-yield",
+    "title": "Dependencies with yield",
+    "url": "https://fastapi.tiangolo.com/tutorial/dependencies/dependencies-with-yield/",
+    "category": "tutorial"
+  },
+  {
+    "id": "security",
+    "title": "Security",
+    "url": "https://fastapi.tiangolo.com/tutorial/security/",
+    "category": "tutorial"
+  },
+  {
+    "id": "security-first-steps",
+    "title": "Security - First Steps",
+    "url": "https://fastapi.tiangolo.com/tutorial/security/first-steps/",
+    "category": "tutorial"
+  },
+  {
+    "id": "get-current-user",
+    "title": "Get Current User",
+    "url": "https://fastapi.tiangolo.com/tutorial/security/get-current-user/",
+    "category": "tutorial"
+  },
+  {
+    "id": "simple-oauth2",
+    "title": "Simple OAuth2 with Password and Bearer",
+    "url": "https://fastapi.tiangolo.com/tutorial/security/simple-oauth2/",
+    "category": "tutorial"
+  },
+  {
+    "id": "oauth2-jwt",
+    "title": "OAuth2 with Password (and hashing), Bearer with JWT tokens",
+    "url": "https://fastapi.tiangolo.com/tutorial/security/oauth2-jwt/",
+    "category": "tutorial"
+  },
+  {
+    "id": "middleware",
+    "title": "Middleware",
+    "url": "https://fastapi.tiangolo.com/tutorial/middleware/",
+    "category": "tutorial"
+  },
+  {
+    "id": "cors",
+    "title": "CORS (Cross-Origin Resource Sharing)",
+    "url": "https://fastapi.tiangolo.com/tutorial/cors/",
+    "category": "tutorial"
+  },
+  {
+    "id": "sql-databases",
+    "title": "SQL (Relational) Databases",
+    "url": "https://fastapi.tiangolo.com/tutorial/sql-databases/",
+    "category": "tutorial"
+  },
+  {
+    "id": "bigger-applications",
+    "title": "Bigger Applications - Multiple Files",
+    "url": "https://fastapi.tiangolo.com/tutorial/bigger-applications/",
+    "category": "tutorial"
+  },
+  {
+    "id": "stream-json-lines",
+    "title": "Stream JSON Lines",
+    "url": "https://fastapi.tiangolo.com/tutorial/stream-json-lines/",
+    "category": "tutorial"
+  },
+  {
+    "id": "server-sent-events",
+    "title": "Server-Sent Events (SSE)",
+    "url": "https://fastapi.tiangolo.com/tutorial/server-sent-events/",
+    "category": "tutorial"
+  },
+  {
+    "id": "background-tasks",
+    "title": "Background Tasks",
+    "url": "https://fastapi.tiangolo.com/tutorial/background-tasks/",
+    "category": "tutorial"
+  },
+  {
+    "id": "metadata-docs-urls",
+    "title": "Metadata and Docs URLs",
+    "url": "https://fastapi.tiangolo.com/tutorial/metadata/",
+    "category": "tutorial"
+  },
+  {
+    "id": "frontend",
+    "title": "Frontend",
+    "url": "https://fastapi.tiangolo.com/tutorial/frontend/",
+    "category": "tutorial"
+  },
+  {
+    "id": "static-files",
+    "title": "Static Files",
+    "url": "https://fastapi.tiangolo.com/tutorial/static-files/",
+    "category": "tutorial"
+  },
+  {
+    "id": "testing",
+    "title": "Testing",
+    "url": "https://fastapi.tiangolo.com/tutorial/testing/",
+    "category": "tutorial"
+  },
+  {
+    "id": "debugging",
+    "title": "Debugging",
+    "url": "https://fastapi.tiangolo.com/tutorial/debugging/",
+    "category": "tutorial"
+  },
+  {
+    "id": "fastapi-cli",
+    "title": "FastAPI CLI",
+    "url": "https://fastapi.tiangolo.com/fastapi-cli/",
+    "category": "tutorial"
+  },
+  {
+    "id": "advanced-stream-data",
+    "title": "Stream Data",
+    "url": "https://fastapi.tiangolo.com/advanced/stream-data/",
+    "category": "advanced"
+  },
+  {
+    "id": "advanced-path-operation-configuration",
+    "title": "Path Operation Advanced Configuration",
+    "url": "https://fastapi.tiangolo.com/advanced/path-operation-advanced-configuration/",
+    "category": "advanced"
+  },
+  {
+    "id": "additional-status-codes",
+    "title": "Additional Status Codes",
+    "url": "https://fastapi.tiangolo.com/advanced/additional-status-codes/",
+    "category": "advanced"
+  },
+  {
+    "id": "response-directly",
+    "title": "Return a Response Directly",
+    "url": "https://fastapi.tiangolo.com/advanced/response-directly/",
+    "category": "advanced"
+  },
+  {
+    "id": "custom-response",
+    "title": "Custom Response - HTML, Stream, File, others",
+    "url": "https://fastapi.tiangolo.com/advanced/custom-response/",
+    "category": "advanced"
+  },
+  {
+    "id": "additional-responses",
+    "title": "Additional Responses in OpenAPI",
+    "url": "https://fastapi.tiangolo.com/advanced/additional-responses/",
+    "category": "advanced"
+  },
+  {
+    "id": "response-cookies",
+    "title": "Response Cookies",
+    "url": "https://fastapi.tiangolo.com/advanced/response-cookies/",
+    "category": "advanced"
+  },
+  {
+    "id": "response-headers",
+    "title": "Response Headers",
+    "url": "https://fastapi.tiangolo.com/advanced/response-headers/",
+    "category": "advanced"
+  },
+  {
+    "id": "response-change-status-code",
+    "title": "Response - Change Status Code",
+    "url": "https://fastapi.tiangolo.com/advanced/response-change-status-code/",
+    "category": "advanced"
+  },
+  {
+    "id": "advanced-dependencies",
+    "title": "Advanced Dependencies",
+    "url": "https://fastapi.tiangolo.com/advanced/advanced-dependencies/",
+    "category": "advanced"
+  },
+  {
+    "id": "advanced-security",
+    "title": "Advanced Security",
+    "url": "https://fastapi.tiangolo.com/advanced/security/",
+    "category": "advanced"
+  },
+  {
+    "id": "oauth2-scopes",
+    "title": "OAuth2 scopes",
+    "url": "https://fastapi.tiangolo.com/advanced/security/oauth2-scopes/",
+    "category": "advanced"
+  },
+  {
+    "id": "http-basic-auth",
+    "title": "HTTP Basic Auth",
+    "url": "https://fastapi.tiangolo.com/advanced/security/http-basic-auth/",
+    "category": "advanced"
+  },
+  {
+    "id": "using-request-directly",
+    "title": "Using the Request Directly",
+    "url": "https://fastapi.tiangolo.com/advanced/using-request-directly/",
+    "category": "advanced"
+  },
+  {
+    "id": "dataclasses",
+    "title": "Using Dataclasses",
+    "url": "https://fastapi.tiangolo.com/advanced/dataclasses/",
+    "category": "advanced"
+  },
+  {
+    "id": "advanced-middleware",
+    "title": "Advanced Middleware",
+    "url": "https://fastapi.tiangolo.com/advanced/middleware/",
+    "category": "advanced"
+  },
+  {
+    "id": "sub-applications",
+    "title": "Sub Applications - Mounts",
+    "url": "https://fastapi.tiangolo.com/advanced/sub-applications/",
+    "category": "advanced"
+  },
+  {
+    "id": "behind-a-proxy",
+    "title": "Behind a Proxy",
+    "url": "https://fastapi.tiangolo.com/advanced/behind-a-proxy/",
+    "category": "advanced"
+  },
+  {
+    "id": "templates",
+    "title": "Templates",
+    "url": "https://fastapi.tiangolo.com/advanced/templates/",
+    "category": "advanced"
+  },
+  {
+    "id": "websockets",
+    "title": "WebSockets",
+    "url": "https://fastapi.tiangolo.com/advanced/websockets/",
+    "category": "advanced"
+  },
+  {
+    "id": "lifespan-events",
+    "title": "Lifespan Events",
+    "url": "https://fastapi.tiangolo.com/advanced/events/",
+    "category": "advanced"
+  },
+  {
+    "id": "testing-websockets",
+    "title": "Testing WebSockets",
+    "url": "https://fastapi.tiangolo.com/advanced/testing-websockets/",
+    "category": "advanced"
+  },
+  {
+    "id": "testing-events",
+    "title": "Testing Events: lifespan and startup - shutdown",
+    "url": "https://fastapi.tiangolo.com/advanced/testing-events/",
+    "category": "advanced"
+  },
+  {
+    "id": "testing-dependencies",
+    "title": "Testing Dependencies with Overrides",
+    "url": "https://fastapi.tiangolo.com/advanced/testing-dependencies/",
+    "category": "advanced"
+  },
+  {
+    "id": "async-tests",
+    "title": "Async Tests",
+    "url": "https://fastapi.tiangolo.com/advanced/async-tests/",
+    "category": "advanced"
+  },
+  {
+    "id": "settings-environment-variables",
+    "title": "Settings and Environment Variables",
+    "url": "https://fastapi.tiangolo.com/advanced/settings/",
+    "category": "advanced"
+  },
+  {
+    "id": "openapi-callbacks",
+    "title": "OpenAPI Callbacks",
+    "url": "https://fastapi.tiangolo.com/advanced/openapi-callbacks/",
+    "category": "advanced"
+  },
+  {
+    "id": "openapi-webhooks",
+    "title": "OpenAPI Webhooks",
+    "url": "https://fastapi.tiangolo.com/advanced/openapi-webhooks/",
+    "category": "advanced"
+  },
+  {
+    "id": "wsgi",
+    "title": "Including WSGI - Flask, Django, others",
+    "url": "https://fastapi.tiangolo.com/advanced/wsgi/",
+    "category": "advanced"
+  },
+  {
+    "id": "generating-sdks",
+    "title": "Generating SDKs",
+    "url": "https://fastapi.tiangolo.com/advanced/generate-clients/",
+    "category": "advanced"
+  },
+  {
+    "id": "advanced-python-types",
+    "title": "Advanced Python Types",
+    "url": "https://fastapi.tiangolo.com/advanced/advanced-python-types/",
+    "category": "advanced"
+  },
+  {
+    "id": "json-base64-bytes",
+    "title": "JSON with Bytes as Base64",
+    "url": "https://fastapi.tiangolo.com/advanced/json-base64-bytes/",
+    "category": "advanced"
+  },
+  {
+    "id": "strict-content-type",
+    "title": "Strict Content-Type Checking",
+    "url": "https://fastapi.tiangolo.com/advanced/strict-content-type/",
+    "category": "advanced"
+  },
+  {
+    "id": "fastapi-versions",
+    "title": "About FastAPI versions",
+    "url": "https://fastapi.tiangolo.com/deployment/versions/",
+    "category": "deployment"
+  },
+  {
+    "id": "https",
+    "title": "About HTTPS",
+    "url": "https://fastapi.tiangolo.com/deployment/https/",
+    "category": "deployment"
+  },
+  {
+    "id": "run-server-manually",
+    "title": "Run a Server Manually",
+    "url": "https://fastapi.tiangolo.com/deployment/manually/",
+    "category": "deployment"
+  },
+  {
+    "id": "deployment-concepts",
+    "title": "Deployments Concepts",
+    "url": "https://fastapi.tiangolo.com/deployment/concepts/",
+    "category": "deployment"
+  },
+  {
+    "id": "server-workers",
+    "title": "Server Workers - Uvicorn with Workers",
+    "url": "https://fastapi.tiangolo.com/deployment/server-workers/",
+    "category": "deployment"
+  },
+  {
+    "id": "docker",
+    "title": "FastAPI in Containers - Docker",
+    "url": "https://fastapi.tiangolo.com/deployment/docker/",
+    "category": "deployment"
+  },
+  {
+    "id": "migrate-pydantic-v1-v2",
+    "title": "Migrate from Pydantic v1 to Pydantic v2",
+    "url": "https://fastapi.tiangolo.com/how-to/migrate-from-pydantic-v1-to-pydantic-v2/",
+    "category": "how-to"
+  },
+  {
+    "id": "graphql",
+    "title": "GraphQL",
+    "url": "https://fastapi.tiangolo.com/how-to/graphql/",
+    "category": "how-to"
+  },
+  {
+    "id": "custom-request-route",
+    "title": "Custom Request and APIRoute class",
+    "url": "https://fastapi.tiangolo.com/how-to/custom-request-and-route/",
+    "category": "how-to"
+  },
+  {
+    "id": "conditional-openapi",
+    "title": "Conditional OpenAPI",
+    "url": "https://fastapi.tiangolo.com/how-to/conditional-openapi/",
+    "category": "how-to"
+  },
+  {
+    "id": "extending-openapi",
+    "title": "Extending OpenAPI",
+    "url": "https://fastapi.tiangolo.com/how-to/extending-openapi/",
+    "category": "how-to"
+  },
+  {
+    "id": "separate-openapi-schemas",
+    "title": "Separate OpenAPI Schemas for Input and Output or Not",
+    "url": "https://fastapi.tiangolo.com/how-to/separate-openapi-schemas/",
+    "category": "how-to"
+  },
+  {
+    "id": "custom-docs-ui-assets",
+    "title": "Custom Docs UI Static Assets (Self-Hosting)",
+    "url": "https://fastapi.tiangolo.com/how-to/custom-docs-ui-assets/",
+    "category": "how-to"
+  },
+  {
+    "id": "configure-swagger-ui",
+    "title": "Configure Swagger UI",
+    "url": "https://fastapi.tiangolo.com/how-to/configure-swagger-ui/",
+    "category": "how-to"
+  },
+  {
+    "id": "testing-database",
+    "title": "Testing a Database",
+    "url": "https://fastapi.tiangolo.com/how-to/testing-database/",
+    "category": "how-to"
+  },
+  {
+    "id": "authentication-error-status-code",
+    "title": "Use Old 403 Authentication Error Status Codes",
+    "url": "https://fastapi.tiangolo.com/how-to/authentication-error-status-code/",
+    "category": "how-to"
+  },
+  {
+    "id": "reference-fastapi",
+    "title": "FastAPI class",
+    "url": "https://fastapi.tiangolo.com/reference/fastapi/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-parameters",
+    "title": "Request Parameters",
+    "url": "https://fastapi.tiangolo.com/reference/parameters/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-status-codes",
+    "title": "Status Codes",
+    "url": "https://fastapi.tiangolo.com/reference/status/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-uploadfile",
+    "title": "UploadFile class",
+    "url": "https://fastapi.tiangolo.com/reference/uploadfile/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-exceptions",
+    "title": "Exceptions - HTTPException and WebSocketException",
+    "url": "https://fastapi.tiangolo.com/reference/exceptions/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-dependencies",
+    "title": "Dependencies - Depends() and Security()",
+    "url": "https://fastapi.tiangolo.com/reference/dependencies/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-apirouter",
+    "title": "APIRouter class",
+    "url": "https://fastapi.tiangolo.com/reference/apirouter/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-background-tasks",
+    "title": "Background Tasks - BackgroundTasks",
+    "url": "https://fastapi.tiangolo.com/reference/background/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-request",
+    "title": "Request class",
+    "url": "https://fastapi.tiangolo.com/reference/request/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-websockets",
+    "title": "WebSockets",
+    "url": "https://fastapi.tiangolo.com/reference/websockets/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-httpconnection",
+    "title": "HTTPConnection class",
+    "url": "https://fastapi.tiangolo.com/reference/httpconnection/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-response",
+    "title": "Response class",
+    "url": "https://fastapi.tiangolo.com/reference/response/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-responses",
+    "title": "Custom Response Classes - File, HTML, Redirect, Streaming, etc.",
+    "url": "https://fastapi.tiangolo.com/reference/responses/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-sse",
+    "title": "Server-Sent Events - EventSourceResponse and ServerSentEvent",
+    "url": "https://fastapi.tiangolo.com/reference/sse/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-middleware",
+    "title": "Middleware",
+    "url": "https://fastapi.tiangolo.com/reference/middleware/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-openapi",
+    "title": "OpenAPI",
+    "url": "https://fastapi.tiangolo.com/reference/openapi/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-openapi-docs",
+    "title": "OpenAPI docs",
+    "url": "https://fastapi.tiangolo.com/reference/openapi/docs/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-openapi-models",
+    "title": "OpenAPI models",
+    "url": "https://fastapi.tiangolo.com/reference/openapi/models/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-security",
+    "title": "Security Tools",
+    "url": "https://fastapi.tiangolo.com/reference/security/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-encoders",
+    "title": "Encoders - jsonable_encoder",
+    "url": "https://fastapi.tiangolo.com/reference/encoders/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-static-files",
+    "title": "Static Files - StaticFiles",
+    "url": "https://fastapi.tiangolo.com/reference/staticfiles/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-templating",
+    "title": "Templating - Jinja2Templates",
+    "url": "https://fastapi.tiangolo.com/reference/templating/",
+    "category": "reference"
+  },
+  {
+    "id": "reference-test-client",
+    "title": "Test Client - TestClient",
+    "url": "https://fastapi.tiangolo.com/reference/testclient/",
+    "category": "reference"
+  }
+]
