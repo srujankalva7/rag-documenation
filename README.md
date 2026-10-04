@@ -99,6 +99,31 @@ The command exits with a nonzero status when any page fails. A single failed pag
 is recorded and reported without preventing the remaining sources from being
 processed.
 
+### Document chunking
+
+After ingestion creates normalized JSON documents, split them into retrieval
+chunks:
+
+```bash
+python -m scripts.chunk_documents
+```
+
+The default configuration uses a maximum of 600 `cl100k_base` tokens and 75
+tokens of overlap. Override these values or process one document while tuning:
+
+```bash
+python -m scripts.chunk_documents \
+  --document-id request-body \
+  --max-tokens 500 \
+  --overlap-tokens 75
+```
+
+Use `--dry-run` to validate and chunk inputs without writing output. Chunk files
+are stored in `data/chunks/<document-id>.json` and include stable IDs, document
+hashes, section metadata, citation URLs, token counts, code blocks, and content
+hashes. Code blocks remain intact even when an unusually large block causes a
+chunk to exceed the configured maximum.
+
 Run the automated checks with:
 
 ```bash

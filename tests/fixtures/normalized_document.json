@@ -1,0 +1,32 @@
+{
+  "id": "request-body",
+  "title": "Request Body",
+  "url": "https://fastapi.tiangolo.com/tutorial/body/",
+  "category": "tutorial",
+  "content_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "scraped_at": "2026-10-04T19:00:00Z",
+  "sections": [
+    {
+      "heading": "Create your data model",
+      "heading_level": 2,
+      "anchor": "create-your-data-model",
+      "source_url": "https://fastapi.tiangolo.com/tutorial/body/#create-your-data-model",
+      "content": "A request body can be declared with a Pydantic model. FastAPI validates the incoming data and returns clear validation errors.\n\nThe same model also contributes its schema to the generated OpenAPI documentation.",
+      "code_blocks": [
+        {
+          "language": "python",
+          "code": "from pydantic import BaseModel\n\nclass Item(BaseModel):\n    name: str\n    price: float"
+        }
+      ]
+    },
+    {
+      "heading": "Results",
+      "heading_level": 2,
+      "anchor": "results",
+      "source_url": "https://fastapi.tiangolo.com/tutorial/body/#results",
+      "content": "FastAPI reads JSON from the request body, converts data when possible, validates it, and provides the parsed model to the path operation.",
+      "code_blocks": []
+    }
+  ]
+}
+
