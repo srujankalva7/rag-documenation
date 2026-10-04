@@ -155,6 +155,33 @@ command embeds only new or changed content, updates metadata, removes stale
 chunks, and cleans up unreferenced embeddings. Embedding input includes both
 prose and fenced code, so code-only documentation chunks remain searchable.
 
+### Vector retrieval
+
+Search the indexed FastAPI documentation without calling an LLM:
+
+```bash
+python -m scripts.search_documents \
+  "How do I create a request body in FastAPI?"
+```
+
+Control the number of results, filter by source category, or return structured
+JSON for an API or evaluation script:
+
+```bash
+python -m scripts.search_documents \
+  "How does dependency injection work?" \
+  --top-k 3 \
+  --category tutorial
+
+python -m scripts.search_documents \
+  "How do I test a FastAPI application?" \
+  --json
+```
+
+Search must use the same `--model` and `--index-path` used for indexing. Results
+are ranked by cosine similarity and include their score, page and section title,
+prose, code blocks, and canonical FastAPI source URL.
+
 Run the automated checks with:
 
 ```bash
