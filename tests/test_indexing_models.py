@@ -17,6 +17,7 @@ def make_chunk(chunk_id: str = "request-body:0") -> dict[str, object]:
         "section_chunk_index": 0,
         "source_url": "https://fastapi.tiangolo.com/tutorial/body/",
         "text": "Use a Pydantic model to declare a request body.",
+        "code_blocks": [],
         "token_count": 12,
     }
 
@@ -48,3 +49,16 @@ def test_records_rejects_duplicate_chunk_ids() -> None:
         records_from_chunked_document(
             {"document_id": "request-body", "chunks": [chunk, chunk.copy()]}
         )
+
+
+def test_records_accepts_code_without_prose() -> None:
+    chunk = make_chunk()
+    chunk["text"] = ""
+    chunk["code_blocks"] = [{"language": "python", "code": "app = FastAPI()"}]
+
+    record = records_from_chunked_document(
+        {"document_id": "request-body", "chunks": [chunk]}
+    )[0]
+
+    assert record.text == ""
+    assert record.embedding_text == "```python\napp = FastAPI()\n```"

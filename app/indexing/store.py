@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS chunks (
     section_chunk_index INTEGER NOT NULL,
     source_url TEXT NOT NULL,
     text TEXT NOT NULL,
+    code_blocks_json TEXT NOT NULL DEFAULT '[]',
     token_count INTEGER NOT NULL,
     FOREIGN KEY (content_hash, model_name)
         REFERENCES embeddings(content_hash, model_name)
@@ -58,6 +59,14 @@ class SQLiteVectorIndex:
             connection = sqlite3.connect(self.path)
         connection.row_factory = sqlite3.Row
         connection.executescript(SCHEMA)
+        columns = {
+            str(row["name"]) for row in connection.execute("PRAGMA table_info(chunks)")
+        }
+        if "code_blocks_json" not in columns:
+            connection.execute(
+                "ALTER TABLE chunks ADD COLUMN "
+                "code_blocks_json TEXT NOT NULL DEFAULT '[]'"
+            )
         return connection
 
     def indexed_hashes(
@@ -111,8 +120,8 @@ class SQLiteVectorIndex:
             INSERT INTO chunks (
                 chunk_id, content_hash, model_name, document_id, document_hash,
                 title, category, section, section_index, chunk_index,
-                section_chunk_index, source_url, text, token_count
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                section_chunk_index, source_url, text, code_blocks_json, token_count
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ON CONFLICT(chunk_id) DO UPDATE SET
                 content_hash = excluded.content_hash,
                 model_name = excluded.model_name,
@@ -126,6 +135,7 @@ class SQLiteVectorIndex:
                 section_chunk_index = excluded.section_chunk_index,
                 source_url = excluded.source_url,
                 text = excluded.text,
+                code_blocks_json = excluded.code_blocks_json,
                 token_count = excluded.token_count
             """,
             [
@@ -143,6 +153,14 @@ class SQLiteVectorIndex:
                     record.section_chunk_index,
                     record.source_url,
                     record.text,
+                    json.dumps(
+                        [
+                            {"language": block.language, "code": block.code}
+                            for block in record.code_blocks
+                        ],
+                        ensure_ascii=False,
+                        separators=(",", ":"),
+                    ),
                     record.token_count,
                 )
                 for record in records

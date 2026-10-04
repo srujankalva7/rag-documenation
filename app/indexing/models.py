@@ -23,6 +23,24 @@ def _required_integer(value: Any, field_name: str) -> int:
 
 
 @dataclass(frozen=True, slots=True)
+class IndexCodeBlock:
+    language: str | None
+    code: str
+
+    @classmethod
+    def from_dict(cls, value: Any) -> IndexCodeBlock:
+        if not isinstance(value, dict):
+            raise ChunkValidationError("code block must be an object")
+        language = value.get("language")
+        if language is not None and not isinstance(language, str):
+            raise ChunkValidationError("code block language must be a string or null")
+        return cls(
+            language=language,
+            code=_required_string(value.get("code"), "code block code"),
+        )
+
+
+@dataclass(frozen=True, slots=True)
 class IndexRecord:
     chunk_id: str
     content_hash: str
@@ -36,12 +54,32 @@ class IndexRecord:
     section_chunk_index: int
     source_url: str
     text: str
+    code_blocks: tuple[IndexCodeBlock, ...]
     token_count: int
+
+    @property
+    def embedding_text(self) -> str:
+        rendered_code = "\n\n".join(
+            f"```{block.language or ''}\n{block.code}\n```"
+            for block in self.code_blocks
+        )
+        return f"{self.text.strip()}\n\n{rendered_code}".strip()
 
     @classmethod
     def from_dict(cls, value: Any) -> IndexRecord:
         if not isinstance(value, dict):
             raise ChunkValidationError("chunk must be an object")
+        text = value.get("text", "")
+        if not isinstance(text, str):
+            raise ChunkValidationError("text must be a string")
+        raw_code_blocks = value.get("code_blocks", [])
+        if not isinstance(raw_code_blocks, list):
+            raise ChunkValidationError("code_blocks must be an array")
+        code_blocks = tuple(
+            IndexCodeBlock.from_dict(block) for block in raw_code_blocks
+        )
+        if not text.strip() and not code_blocks:
+            raise ChunkValidationError("chunk must contain text or code blocks")
         return cls(
             chunk_id=_required_string(value.get("chunk_id"), "chunk_id"),
             content_hash=_required_string(value.get("content_hash"), "content_hash"),
@@ -58,7 +96,8 @@ class IndexRecord:
                 value.get("section_chunk_index"), "section_chunk_index"
             ),
             source_url=_required_string(value.get("source_url"), "source_url"),
-            text=_required_string(value.get("text"), "text"),
+            text=text.strip(),
+            code_blocks=code_blocks,
             token_count=_required_integer(value.get("token_count"), "token_count"),
         )
 

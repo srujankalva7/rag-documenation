@@ -152,7 +152,8 @@ index. Generated indexes are ignored by Git.
 The SQLite index stores chunk metadata separately from vectors and reuses one
 embedding when multiple chunks have the same content hash. Re-running the
 command embeds only new or changed content, updates metadata, removes stale
-chunks, and cleans up unreferenced embeddings.
+chunks, and cleans up unreferenced embeddings. Embedding input includes both
+prose and fenced code, so code-only documentation chunks remain searchable.
 
 Run the automated checks with:
 

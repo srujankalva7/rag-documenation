@@ -25,7 +25,9 @@ class FastEmbedEmbeddingProvider:
 
     @property
     def model_name(self) -> str:
-        return self._model_name
+        # Version the embedding input format so an existing text-only vector is
+        # never reused after code blocks become part of the embedded content.
+        return f"{self._model_name}::text-and-code-v1"
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         if not texts:
@@ -39,6 +41,6 @@ class FastEmbedEmbeddingProvider:
                     "python -m pip install -e '.[local]'"
                 ) from error
 
-            self._model = TextEmbedding(model_name=self.model_name)
+            self._model = TextEmbedding(model_name=self._model_name)
         embeddings = self._model.embed(texts)
         return [[float(value) for value in row] for row in embeddings]

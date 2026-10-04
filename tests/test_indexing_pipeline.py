@@ -26,6 +26,7 @@ def make_chunk(
     *,
     document_id: str = "request-body",
     chunk_index: int = 0,
+    code_blocks: list[dict[str, str | None]] | None = None,
 ) -> dict[str, object]:
     return {
         "chunk_id": chunk_id,
@@ -40,7 +41,8 @@ def make_chunk(
         "section_chunk_index": chunk_index,
         "source_url": f"https://fastapi.tiangolo.com/tutorial/{document_id}/#example",
         "text": text,
-        "token_count": len(text.split()),
+        "code_blocks": code_blocks or [],
+        "token_count": max(len(text.split()), 1),
     }
 
 
@@ -151,3 +153,37 @@ def test_dry_run_does_not_create_index_or_call_provider(tmp_path: Path) -> None:
     assert summary.embedded == 1
     assert provider.calls == []
     assert not index_path.exists()
+
+
+def test_pipeline_embeds_and_stores_code_only_chunks(tmp_path: Path) -> None:
+    chunks_dir = tmp_path / "chunks"
+    chunks_dir.mkdir()
+    index_path = tmp_path / "vectors.sqlite3"
+    code_blocks = [{"language": "python", "code": "app = FastAPI()"}]
+    write_document(
+        chunks_dir / "request-body.json",
+        "request-body",
+        [
+            make_chunk(
+                "request-body:0",
+                "code-hash",
+                "",
+                code_blocks=code_blocks,
+            )
+        ],
+    )
+    provider = FakeEmbeddingProvider()
+
+    summary = IndexingPipeline(
+        provider=provider,
+        store=SQLiteVectorIndex(index_path),
+        chunks_dir=chunks_dir,
+    ).run()
+
+    assert summary.embedded == 1
+    assert provider.calls == [["```python\napp = FastAPI()\n```"]]
+    with sqlite3.connect(index_path) as connection:
+        stored = connection.execute(
+            "SELECT text, code_blocks_json FROM chunks"
+        ).fetchone()
+    assert stored == ("", '[{"language":"python","code":"app = FastAPI()"}]')

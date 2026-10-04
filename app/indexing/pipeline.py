@@ -118,6 +118,8 @@ class IndexingPipeline:
                 vectors = self.provider.embed(
                     [
                         desired_by_hash[content_hash].text
+                        if not desired_by_hash[content_hash].code_blocks
+                        else desired_by_hash[content_hash].embedding_text
                         for content_hash in batch_hashes
                     ]
                 )
