@@ -68,7 +68,7 @@ Install the project and development dependencies:
 ```bash
 python -m venv .venv
 source .venv/bin/activate
-python -m pip install -e '.[dev]'
+python -m pip install -e '.[dev,local]'
 ```
 
 Scrape and normalize every approved FastAPI documentation page:
@@ -123,6 +123,37 @@ are stored in `data/chunks/<document-id>.json` and include stable IDs, document
 hashes, section metadata, citation URLs, token counts, code blocks, and content
 hashes. Code blocks remain intact even when an unusually large block causes a
 chunk to exceed the configured maximum.
+
+### Vector indexing
+
+Create local embeddings and synchronize the persistent vector index after
+chunking:
+
+```bash
+python -m scripts.index_documents
+```
+
+The first run downloads the configured FastEmbed ONNX model. Embeddings are then
+generated locally, so indexing does not require a paid embedding API. The
+default `BAAI/bge-small-en-v1.5` model and index location can be changed:
+
+```bash
+python -m scripts.index_documents \
+  --model BAAI/bge-small-en-v1.5 \
+  --index-path data/index/vectors.sqlite3 \
+  --batch-size 32
+```
+
+Use `--dry-run` to validate chunk files and preview the number of embeddings
+needed without loading the model or modifying the index. Use `--document-id` for
+an incremental single-document update, or `--rebuild` to recreate the complete
+index. Generated indexes are ignored by Git.
+
+The SQLite index stores chunk metadata separately from vectors and reuses one
+embedding when multiple chunks have the same content hash. Re-running the
+command embeds only new or changed content, updates metadata, removes stale
+chunks, and cleans up unreferenced embeddings. Embedding input includes both
+prose and fenced code, so code-only documentation chunks remain searchable.
 
 Run the automated checks with:
 
