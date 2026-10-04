@@ -11,3 +11,5 @@ data/documents/*
 !data/documents/.gitkeep
 data/versions/*
 !data/versions/.gitkeep
+data/chunks/*
+!data/chunks/.gitkeep
