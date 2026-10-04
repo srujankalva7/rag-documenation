@@ -61,6 +61,51 @@ the actual infrastructure cost.
 - **Local development:** Docker Compose
 - **Testing:** pytest
 
+## Document ingestion
+
+Install the project and development dependencies:
+
+```bash
+python -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+```
+
+Scrape and normalize every approved FastAPI documentation page:
+
+```bash
+python -m scripts.ingest_fastapi_docs
+```
+
+Useful development options:
+
+```bash
+# Process one page while developing the parser.
+python -m scripts.ingest_fastapi_docs --document-id request-body
+
+# Reparse saved HTML without sending network requests.
+python -m scripts.ingest_fastapi_docs --use-local-html
+
+# Validate fetching and parsing without writing output.
+python -m scripts.ingest_fastapi_docs --dry-run
+```
+
+The source manifest is stored in `data/sources/fastapi_urls.json`. Original HTML
+is written to `data/raw`, normalized documents to `data/documents`, and previous
+document versions to `data/versions`. Generated data is ignored by Git; only the
+directory placeholders and source manifest are committed.
+
+The command exits with a nonzero status when any page fails. A single failed page
+is recorded and reported without preventing the remaining sources from being
+processed.
+
+Run the automated checks with:
+
+```bash
+ruff check .
+pytest
+```
+
 ## Target data model
 
 | Entity | Purpose |
@@ -391,4 +436,3 @@ The first release is complete when:
 - Add multilingual retrieval and generation.
 - Compare local and hosted embedding, reranking, and generation models.
 - Deploy the service to Kubernetes after the single-service version is stable.
-

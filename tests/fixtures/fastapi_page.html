@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <body>
+    <nav>FastAPI Tutorial Advanced Search</nav>
+    <main>
+      <article>
+        <h1 id="request-body">Request Body<a class="headerlink">¶</a></h1>
+        <p>You can declare a request body with a Pydantic model.</p>
+        <h2 id="create-your-data-model">Create your data model</h2>
+        <p>Import <code>BaseModel</code> and create a class.</p>
+        <pre><code class="language-python">from pydantic import BaseModel
+
+class Item(BaseModel):
+    name: str
+</code></pre>
+        <div class="admonition note">
+          <p>FastAPI reads the model from the request body.</p>
+        </div>
+        <h2 id="benefits">Benefits</h2>
+        <ul>
+          <li>Validation</li>
+          <li>Editor support</li>
+        </ul>
+      </article>
+    </main>
+    <footer>The FastAPI trademark is owned by its authors.</footer>
+  </body>
+</html>
+
