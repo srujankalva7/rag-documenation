@@ -35,3 +35,28 @@ class SearchResult:
         value = asdict(self)
         value["content"] = self.content
         return value
+
+
+@dataclass(frozen=True, slots=True)
+class HybridSearchResult:
+    result: SearchResult
+    score: float
+    vector_rank: int | None
+    keyword_rank: int | None
+    vector_score: float | None
+    keyword_score: float | None
+    title_phrase_matches: int = 0
+
+    def to_dict(self) -> dict[str, Any]:
+        value = self.result.to_dict()
+        value.update(
+            {
+                "score": self.score,
+                "vector_rank": self.vector_rank,
+                "keyword_rank": self.keyword_rank,
+                "vector_score": self.vector_score,
+                "keyword_score": self.keyword_score,
+                "title_phrase_matches": self.title_phrase_matches,
+            }
+        )
+        return value

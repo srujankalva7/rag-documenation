@@ -157,7 +157,9 @@ prose and fenced code, so code-only documentation chunks remain searchable.
 
 ### Vector retrieval
 
-Search the indexed FastAPI documentation without calling an LLM:
+Search the indexed FastAPI documentation without calling an LLM. Hybrid search
+is the default and combines semantic vector rankings with BM25-style keyword
+rankings using Reciprocal Rank Fusion:
 
 ```bash
 python -m scripts.search_documents \
@@ -179,8 +181,24 @@ python -m scripts.search_documents \
 ```
 
 Search must use the same `--model` and `--index-path` used for indexing. Results
-are ranked by cosine similarity and include their score, page and section title,
-prose, code blocks, and canonical FastAPI source URL.
+include their score, page and section title, prose, code blocks, and canonical
+FastAPI source URL.
+
+Compare the retrieval modes or tune fusion behavior:
+
+```bash
+python -m scripts.search_documents "request body" --mode vector
+python -m scripts.search_documents "request body" --mode keyword
+python -m scripts.search_documents "request body" \
+  --mode hybrid \
+  --vector-weight 1.0 \
+  --keyword-weight 1.0 \
+  --rrf-k 60
+```
+
+Keyword retrieval gives extra weight to page titles and section headings. Hybrid
+retrieval also applies a small exact title-phrase boost so focused pages such as
+`Request Body` are preferred over broadly related advanced pages.
 
 Run the automated checks with:
 
