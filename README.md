@@ -200,6 +200,38 @@ Keyword retrieval gives extra weight to page titles and section headings. Hybrid
 retrieval also applies a small exact title-phrase boost so focused pages such as
 `Request Body` are preferred over broadly related advanced pages.
 
+### Search API
+
+Start the FastAPI service after creating the local vector index:
+
+```bash
+uvicorn app.api.main:app --reload
+```
+
+Open `http://127.0.0.1:8000/docs` for the interactive API documentation, or
+check service and index availability directly:
+
+```bash
+curl http://127.0.0.1:8000/health
+```
+
+Search uses hybrid retrieval by default:
+
+```bash
+curl -X POST http://127.0.0.1:8000/search \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "How do I create a request body?",
+    "top_k": 5,
+    "category": "tutorial",
+    "mode": "hybrid"
+  }'
+```
+
+The response includes combined and component scores, vector and keyword ranks,
+chunk text, code blocks, and canonical source URLs. Set `RAG_INDEX_PATH` or
+`RAG_EMBEDDING_MODEL` to override the default index and embedding model.
+
 Run the automated checks with:
 
 ```bash
