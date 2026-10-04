@@ -8,12 +8,22 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException
 
 from app.api.models import (
+    AskRequest,
+    AskResponse,
+    CitationResponse,
     HealthResponse,
     SearchMode,
     SearchRequest,
     SearchResponse,
     SearchResultResponse,
+    UsageResponse,
 )
+from app.generation.models import GenerationProvider
+from app.generation.providers import (
+    ExtractiveGenerationProvider,
+    OpenAIGenerationProvider,
+)
+from app.generation.service import AnswerService
 from app.indexing.providers import EmbeddingProvider, FastEmbedEmbeddingProvider
 from app.indexing.store import SQLiteVectorIndex
 from app.retrieval.hybrid import HybridRetriever
@@ -23,6 +33,25 @@ from app.retrieval.service import VectorRetriever
 
 DEFAULT_INDEX_PATH = Path("data/index/vectors.sqlite3")
 DEFAULT_MODEL = "BAAI/bge-small-en-v1.5"
+DEFAULT_GENERATION_MODEL = "gpt-4.1-mini"
+
+
+def _optional_float(name: str) -> float | None:
+    value = os.environ.get(name)
+    return float(value) if value else None
+
+
+def _default_generation_provider() -> GenerationProvider:
+    provider_name = os.environ.get("RAG_GENERATION_PROVIDER", "extractive")
+    if provider_name == "extractive":
+        return ExtractiveGenerationProvider()
+    if provider_name == "openai":
+        return OpenAIGenerationProvider(
+            model_name=os.environ.get("RAG_GENERATION_MODEL", DEFAULT_GENERATION_MODEL),
+            input_cost_per_million=_optional_float("RAG_INPUT_COST_PER_MILLION"),
+            output_cost_per_million=_optional_float("RAG_OUTPUT_COST_PER_MILLION"),
+        )
+    raise ValueError(f"unknown RAG_GENERATION_PROVIDER: {provider_name}")
 
 
 def _response_item(
@@ -46,6 +75,7 @@ def create_app(
     *,
     index_path: Path | None = None,
     provider: EmbeddingProvider | None = None,
+    generation_provider: GenerationProvider | None = None,
 ) -> FastAPI:
     resolved_path = index_path or Path(
         os.environ.get("RAG_INDEX_PATH", str(DEFAULT_INDEX_PATH))
@@ -56,6 +86,11 @@ def create_app(
     store = SQLiteVectorIndex(resolved_path)
     vector_retriever = VectorRetriever(embedding_provider, store)
     keyword_retriever = KeywordRetriever(store)
+    hybrid_retriever = HybridRetriever(vector_retriever, keyword_retriever)
+    answer_service = AnswerService(
+        hybrid_retriever,
+        generation_provider or _default_generation_provider(),
+    )
 
     application = FastAPI(
         title="FastAPI Documentation RAG",
@@ -113,6 +148,50 @@ def create_app(
             mode=request.mode,
             count=len(response_results),
             results=response_results,
+        )
+
+    @application.post("/ask", response_model=AskResponse)
+    def ask(request: AskRequest) -> AskResponse:
+        try:
+            result = answer_service.ask(
+                request.query,
+                top_k=request.top_k,
+                category=request.category,
+                minimum_score=request.minimum_score,
+            )
+        except RetrievalError as error:
+            raise HTTPException(status_code=503, detail=str(error)) from error
+        except ValueError as error:
+            raise HTTPException(status_code=422, detail=str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(status_code=502, detail=str(error)) from error
+
+        return AskResponse(
+            query=result.question,
+            answer=result.answer,
+            supported=result.supported,
+            citations=[
+                CitationResponse(
+                    number=citation.number,
+                    chunk_id=citation.chunk_id,
+                    title=citation.title,
+                    section=citation.section,
+                    source_url=citation.source_url,
+                )
+                for citation in result.citations
+            ],
+            retrieval_results=[
+                _response_item(item) for item in result.retrieval_results
+            ],
+            provider=result.provider,
+            model=result.model,
+            usage=UsageResponse(
+                input_tokens=result.usage.input_tokens,
+                output_tokens=result.usage.output_tokens,
+                total_tokens=result.usage.total_tokens,
+            ),
+            estimated_cost_usd=result.estimated_cost_usd,
+            latency_ms=result.latency_ms,
         )
 
     return application

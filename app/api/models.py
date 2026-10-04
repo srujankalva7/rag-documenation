@@ -83,6 +83,58 @@ class SearchResponse(BaseModel):
     results: list[SearchResultResponse]
 
 
+class AskRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=2000)
+    top_k: int = Field(default=5, ge=1, le=10)
+    category: str | None = Field(default=None, max_length=100)
+    minimum_score: float = Field(default=0.02, ge=0)
+
+    @field_validator("query")
+    @classmethod
+    def validate_query(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("query cannot be empty")
+        return value
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, value: str | None) -> str | None:
+        if value is None:
+            return None
+        value = value.strip()
+        if not value:
+            raise ValueError("category cannot be empty")
+        return value
+
+
+class CitationResponse(BaseModel):
+    number: int
+    chunk_id: str
+    title: str
+    section: str
+    source_url: str
+
+
+class UsageResponse(BaseModel):
+    input_tokens: int
+    output_tokens: int
+    total_tokens: int
+
+
+class AskResponse(BaseModel):
+    query: str
+    answer: str
+    supported: bool
+    citations: list[CitationResponse]
+    retrieval_results: list[SearchResultResponse]
+    provider: str
+    model: str
+    usage: UsageResponse
+    estimated_cost_usd: float | None
+    latency_ms: float
+
+
 class HealthResponse(BaseModel):
     status: str
     index_available: bool
