@@ -26,7 +26,7 @@ REMOVE_SELECTORS = (
     ".headerlink",
     "[data-clipboard-target]",
 )
-CONTENT_TAGS = ["h1", "h2", "h3", "h4", "p", "ul", "ol", "table", "pre"]
+CONTENT_TAGS = frozenset({"h1", "h2", "h3", "h4", "p", "ul", "ol", "table", "pre"})
 CONTAINER_TAGS = {"ul", "ol", "table", "pre"}
 
 
@@ -159,7 +159,12 @@ class FastAPIDocumentParser:
             text_blocks = []
             code_blocks = []
 
-        for element in article.find_all(CONTENT_TAGS):
+        # Walk the DOM directly instead of passing a collection as Beautiful
+        # Soup's ``name`` filter. Collection-filter behavior has differed across
+        # supported Beautiful Soup releases and could omit list-only sections.
+        for element in article.descendants:
+            if not isinstance(element, Tag) or element.name not in CONTENT_TAGS:
+                continue
             if _is_nested_content(element):
                 continue
 
