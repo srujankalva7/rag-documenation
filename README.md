@@ -232,6 +232,40 @@ The response includes combined and component scores, vector and keyword ranks,
 chunk text, code blocks, and canonical source URLs. Set `RAG_INDEX_PATH` or
 `RAG_EMBEDDING_MODEL` to override the default index and embedding model.
 
+### Grounded answers
+
+`POST /ask` retrieves evidence and returns an answer with citations. The default
+`extractive` provider returns the strongest retrieved passage directly, makes no
+LLM call, and has zero generation cost:
+
+```bash
+curl -X POST http://127.0.0.1:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "How do I create a request body?",
+    "top_k": 5,
+    "category": "tutorial"
+  }'
+```
+
+To generate a synthesized answer with OpenAI, install the hosted dependency and
+configure the provider before starting Uvicorn:
+
+```bash
+python -m pip install -e '.[hosted]'
+export RAG_GENERATION_PROVIDER=openai
+export RAG_GENERATION_MODEL=gpt-4.1-mini
+export OPENAI_API_KEY=your-api-key
+uvicorn app.api.main:app --reload
+```
+
+Pricing is deliberately not hard-coded. Optionally set
+`RAG_INPUT_COST_PER_MILLION` and `RAG_OUTPUT_COST_PER_MILLION` to the current
+model prices so each response reports an estimated generation cost. Responses
+also include token usage, latency, supporting chunks, and canonical citations.
+Questions whose best hybrid score is below `minimum_score` are declined without
+calling the generation provider.
+
 Run the automated checks with:
 
 ```bash

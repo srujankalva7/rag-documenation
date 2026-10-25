@@ -20,6 +20,9 @@ dependencies = [
 local = [
   "fastembed>=0.5,<1",
 ]
+hosted = [
+  "openai>=1,<3",
+]
 dev = [
   "httpx2>=2,<3",
   "pytest>=8,<9",
