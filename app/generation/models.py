@@ -60,3 +60,7 @@ class AnswerResult:
     usage: GenerationUsage
     estimated_cost_usd: float | None
     latency_ms: float
+    cache_status: str = "disabled"
+    cache_similarity: float | None = None
+    cached_at: str | None = None
+    avoided_generation_cost_usd: float | None = None

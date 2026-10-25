@@ -208,3 +208,21 @@ class SQLiteVectorIndex:
     def clear(self, connection: sqlite3.Connection) -> None:
         connection.execute("DELETE FROM chunks")
         connection.execute("DELETE FROM embeddings")
+
+    def current_document_hashes(self) -> dict[str, str]:
+        """Return the active document hashes represented by the current index."""
+        if not self.path.is_file():
+            return {}
+        with self.connect() as connection:
+            rows = connection.execute(
+                "SELECT DISTINCT document_id, document_hash FROM chunks"
+            ).fetchall()
+        hashes: dict[str, str] = {}
+        for row in rows:
+            document_id = str(row["document_id"])
+            document_hash = str(row["document_hash"])
+            previous = hashes.get(document_id)
+            hashes[document_id] = (
+                document_hash if previous in (None, document_hash) else ""
+            )
+        return hashes

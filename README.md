@@ -266,6 +266,33 @@ also include token usage, latency, supporting chunks, and canonical citations.
 Questions whose best hybrid score is below `minimum_score` are declined without
 calling the generation provider.
 
+### Semantic answer cache
+
+`POST /ask` now uses a persistent, version-aware cache before running retrieval
+and answer generation. It checks the normalized question for an exact match first,
+then compares a local query embedding with cached questions. A semantic hit is
+accepted only when it meets the configured threshold, has not expired, uses the
+same category and answer settings, and every supporting document hash is still
+current.
+
+The default cache is `data/cache/semantic_cache.sqlite3`. Configure it before
+starting the API:
+
+```bash
+export RAG_CACHE_ENABLED=true
+export RAG_CACHE_PATH=data/cache/semantic_cache.sqlite3
+export RAG_CACHE_SIMILARITY_THRESHOLD=0.95
+export RAG_CACHE_TTL_SECONDS=86400
+uvicorn app.api.main:app --reload
+```
+
+Each `/ask` response contains cache metadata. The status is `miss` on the first
+request, `exact_hit` for the same normalized question, `semantic_hit` for a safe
+paraphrase, or `disabled` when caching is bypassed. Cache hits report zero tokens
+and zero current generation cost, plus the avoided generation cost when it was
+available on the original response. Set `"use_cache": false` in an individual
+request to force retrieval and generation without deleting stored entries.
+
 Run the automated checks with:
 
 ```bash
@@ -603,3 +630,4 @@ The first release is complete when:
 - Add multilingual retrieval and generation.
 - Compare local and hosted embedding, reranking, and generation models.
 - Deploy the service to Kubernetes after the single-service version is stable.
+

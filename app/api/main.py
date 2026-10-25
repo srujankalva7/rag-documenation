@@ -10,6 +10,7 @@ from fastapi import FastAPI, HTTPException
 from app.api.models import (
     AskRequest,
     AskResponse,
+    CacheMetadataResponse,
     CitationResponse,
     HealthResponse,
     SearchMode,
@@ -18,6 +19,8 @@ from app.api.models import (
     SearchResultResponse,
     UsageResponse,
 )
+from app.cache.service import CachedAnswerService
+from app.cache.store import SQLiteSemanticCache
 from app.generation.models import GenerationProvider
 from app.generation.providers import (
     ExtractiveGenerationProvider,
@@ -34,11 +37,24 @@ from app.retrieval.service import VectorRetriever
 DEFAULT_INDEX_PATH = Path("data/index/vectors.sqlite3")
 DEFAULT_MODEL = "BAAI/bge-small-en-v1.5"
 DEFAULT_GENERATION_MODEL = "gpt-4.1-mini"
+DEFAULT_CACHE_PATH = Path("data/cache/semantic_cache.sqlite3")
 
 
 def _optional_float(name: str) -> float | None:
     value = os.environ.get(name)
     return float(value) if value else None
+
+
+def _optional_int(name: str, default: int) -> int:
+    value = os.environ.get(name)
+    return int(value) if value else default
+
+
+def _environment_flag(name: str, default: bool = True) -> bool:
+    value = os.environ.get(name)
+    if value is None:
+        return default
+    return value.strip().lower() not in {"0", "false", "no", "off"}
 
 
 def _default_generation_provider() -> GenerationProvider:
@@ -76,6 +92,7 @@ def create_app(
     index_path: Path | None = None,
     provider: EmbeddingProvider | None = None,
     generation_provider: GenerationProvider | None = None,
+    cache_path: Path | None = None,
 ) -> FastAPI:
     resolved_path = index_path or Path(
         os.environ.get("RAG_INDEX_PATH", str(DEFAULT_INDEX_PATH))
@@ -91,6 +108,25 @@ def create_app(
         hybrid_retriever,
         generation_provider or _default_generation_provider(),
     )
+    configured_cache_path = os.environ.get("RAG_CACHE_PATH")
+    resolved_cache_path = cache_path or (
+        Path(configured_cache_path)
+        if configured_cache_path
+        else (
+            resolved_path.parent / "semantic_cache.sqlite3"
+            if index_path is not None
+            else DEFAULT_CACHE_PATH
+        )
+    )
+    cached_answer_service = CachedAnswerService(
+        answer_service,
+        SQLiteSemanticCache(resolved_cache_path),
+        embedding_provider,
+        store.current_document_hashes,
+        similarity_threshold=_optional_float("RAG_CACHE_SIMILARITY_THRESHOLD") or 0.95,
+        ttl_seconds=_optional_int("RAG_CACHE_TTL_SECONDS", 86_400),
+    )
+    cache_enabled = _environment_flag("RAG_CACHE_ENABLED")
 
     application = FastAPI(
         title="FastAPI Documentation RAG",
@@ -153,11 +189,12 @@ def create_app(
     @application.post("/ask", response_model=AskResponse)
     def ask(request: AskRequest) -> AskResponse:
         try:
-            result = answer_service.ask(
+            result = cached_answer_service.ask(
                 request.query,
                 top_k=request.top_k,
                 category=request.category,
                 minimum_score=request.minimum_score,
+                use_cache=request.use_cache and cache_enabled,
             )
         except RetrievalError as error:
             raise HTTPException(status_code=503, detail=str(error)) from error
@@ -192,6 +229,13 @@ def create_app(
             ),
             estimated_cost_usd=result.estimated_cost_usd,
             latency_ms=result.latency_ms,
+            cache=CacheMetadataResponse(
+                status=result.cache_status,
+                hit=result.cache_status in {"exact_hit", "semantic_hit"},
+                similarity=result.cache_similarity,
+                cached_at=result.cached_at,
+                avoided_generation_cost_usd=result.avoided_generation_cost_usd,
+            ),
         )
 
     return application
