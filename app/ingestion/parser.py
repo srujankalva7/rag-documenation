@@ -26,7 +26,7 @@ REMOVE_SELECTORS = (
     ".headerlink",
     "[data-clipboard-target]",
 )
-CONTENT_TAGS = {"h1", "h2", "h3", "h4", "p", "ul", "ol", "table", "pre"}
+CONTENT_TAGS = ["h1", "h2", "h3", "h4", "p", "ul", "ol", "table", "pre"]
 CONTAINER_TAGS = {"ul", "ol", "table", "pre"}
 
 
