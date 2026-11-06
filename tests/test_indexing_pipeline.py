@@ -91,17 +91,21 @@ def test_pipeline_indexes_incrementally_and_removes_stale_data(tmp_path: Path) -
     second = pipeline.run()
 
     assert first.embedded == 2
+    assert first.changed_documents == ("request-body",)
     assert second.embedded == 0
     assert second.unchanged == 2
+    assert second.changed_documents == ()
     assert len(provider.calls) == 2
     assert table_count(index_path, "chunks") == 2
     assert table_count(index_path, "embeddings") == 2
 
     changed_chunk = make_chunk("request-body:0", "hash-c", "Changed chunk")
+    changed_chunk["document_hash"] = "request-body-hash-v2"
     write_document(document_path, "request-body", [changed_chunk])
     changed = pipeline.run()
 
     assert changed.embedded == 1
+    assert changed.changed_documents == ("request-body",)
     assert changed.removed == 1
     assert changed.orphaned_embeddings_removed == 2
     assert table_count(index_path, "chunks") == 1

@@ -191,6 +191,87 @@ class SQLiteSemanticCache:
                 (time.time(), reason, entry_id),
             )
 
+    def matching_entry_ids(
+        self,
+        *,
+        document_ids: set[str] | None = None,
+        provider: str | None = None,
+        model: str | None = None,
+        created_before: float | None = None,
+        expired_before: float | None = None,
+    ) -> list[int]:
+        """Return active entries matching every supplied lifecycle filter."""
+        clauses = ["invalidated_at IS NULL"]
+        parameters: list[object] = []
+        if provider is not None:
+            clauses.append("provider = ?")
+            parameters.append(provider)
+        if model is not None:
+            clauses.append("model = ?")
+            parameters.append(model)
+        if created_before is not None:
+            clauses.append("created_at < ?")
+            parameters.append(created_before)
+        if expired_before is not None:
+            clauses.append("expires_at <= ?")
+            parameters.append(expired_before)
+
+        query = (
+            "SELECT id, source_versions_json FROM cache_entries WHERE "
+            + " AND ".join(clauses)
+            + " ORDER BY id"
+        )
+        with self.connect() as connection:
+            rows = connection.execute(query, parameters).fetchall()
+
+        matches = []
+        for row in rows:
+            if document_ids:
+                source_versions = json.loads(row["source_versions_json"])
+                if document_ids.isdisjoint(source_versions):
+                    continue
+            matches.append(int(row["id"]))
+        return matches
+
+    def invalidate_entries(
+        self,
+        entry_ids: list[int],
+        reason: str,
+        *,
+        now: float | None = None,
+    ) -> int:
+        """Invalidate selected entries while retaining their audit history."""
+        if not reason.strip():
+            raise ValueError("invalidation reason cannot be empty")
+        if not entry_ids:
+            return 0
+        timestamp = time.time() if now is None else now
+        placeholders = ",".join("?" for _ in entry_ids)
+        with self.connect() as connection:
+            rows = connection.execute(
+                f"SELECT id FROM cache_entries WHERE id IN ({placeholders}) "
+                "AND invalidated_at IS NULL",
+                entry_ids,
+            ).fetchall()
+            active_ids = [int(row["id"]) for row in rows]
+            if not active_ids:
+                return 0
+            active_placeholders = ",".join("?" for _ in active_ids)
+            connection.execute(
+                f"UPDATE cache_entries SET invalidated_at = ?, "
+                f"invalidation_reason = ? WHERE id IN ({active_placeholders})",
+                (timestamp, reason, *active_ids),
+            )
+            connection.executemany(
+                """
+                INSERT INTO cache_events
+                    (event_type, reason, entry_id, similarity, created_at)
+                VALUES ('invalidated', ?, ?, NULL, ?)
+                """,
+                [(reason, entry_id, timestamp) for entry_id in active_ids],
+            )
+        return len(active_ids)
+
     def record_event(
         self,
         event_type: str,

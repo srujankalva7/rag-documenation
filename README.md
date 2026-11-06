@@ -317,6 +317,36 @@ and zero current generation cost, plus the avoided generation cost when it was
 available on the original response. Set `"use_cache": false` in an individual
 request to force retrieval and generation without deleting stored entries.
 
+Reindexing now compares the previous and current document hashes. After a
+successful write, cached answers citing changed, added, or removed documents
+are invalidated automatically; entries supported only by unchanged documents
+remain available. Use `--skip-cache-invalidation` only when intentionally
+separating index maintenance from cache maintenance.
+
+Administrative invalidation is preview-only unless `--apply` is present:
+
+```bash
+# Preview answers supported by one document.
+python -m scripts.invalidate_cache --document-id request-body
+
+# Apply that targeted invalidation and record an audit reason.
+python -m scripts.invalidate_cache \
+  --document-id request-body \
+  --apply \
+  --reason documentation_updated
+
+# Preview expired entries or entries created by a particular local model.
+python -m scripts.invalidate_cache --expired
+python -m scripts.invalidate_cache --provider ollama --model qwen2.5:7b
+
+# Selecting the entire active cache must be explicit and is still a preview.
+python -m scripts.invalidate_cache --all
+```
+
+Filters can be combined and repeated, including `--document-id`, `--provider`,
+`--model`, `--older-than-days`, and `--expired`. Invalidated rows are retained
+with their reason and an event record, so maintenance does not erase history.
+
 Run the automated checks with:
 
 ```bash
@@ -503,15 +533,16 @@ call, while meaningfully different questions do not reuse the cached answer.
 
 ### Phase 8: Invalidate stale cached answers
 
-- [ ] Link each cache entry to the document versions and chunks supporting it.
-- [ ] When ingestion detects a changed page, mark cache entries citing its old
+- [x] Link each cache entry to the document versions and chunks supporting it.
+- [x] When indexing detects a changed page, mark cache entries citing its old
   version invalid.
-- [ ] Preserve cache entries whose supporting documents did not change.
-- [ ] Revalidate an expired entry through retrieval and generation rather than
+- [x] Preserve cache entries whose supporting documents did not change.
+- [x] Revalidate an expired entry through retrieval and generation rather than
   silently extending it.
-- [ ] Add an administrative command to invalidate entries by document, version,
-  model, prompt version, or date.
-- [ ] Test that a changed source invalidates only the affected cached answers.
+- [x] Add a safe administrative command to invalidate entries by document,
+  provider, model, age, or expiry.
+- [ ] Add version and prompt-version filters to administrative invalidation.
+- [x] Test that a changed source invalidates only the affected cached answers.
 
 **Acceptance criteria:** No answer based on an inactive source version can be
 served from the cache, and unrelated cache entries remain reusable.
