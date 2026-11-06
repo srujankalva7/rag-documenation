@@ -333,3 +333,102 @@ def test_ask_declines_low_scoring_evidence_without_generation(tmp_path: Path) ->
     assert value["usage"]["total_tokens"] == 0
     assert value["estimated_cost_usd"] == 0.0
     assert generation_provider.calls == 0
+
+
+def test_ask_applies_and_reports_cost_preset(tmp_path: Path) -> None:
+    index_path = tmp_path / "vectors.sqlite3"
+    seed_index(
+        index_path,
+        [
+            make_record(
+                "request-body:0",
+                "Request Body",
+                "Request Body",
+                "Request body documentation.",
+                [1.0, 0.0],
+            )
+        ],
+    )
+    client = TestClient(
+        create_app(
+            index_path=index_path,
+            provider=FakeEmbeddingProvider([1.0, 0.0]),
+            generation_provider=FakeGenerationProvider(),
+        )
+    )
+
+    response = client.post(
+        "/ask",
+        json={
+            "query": "How do I create a request body?",
+            "preset": "accuracy",
+            "use_cache": False,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()["cost_controls"] == {
+        "preset": "accuracy",
+        "top_k": 8,
+        "minimum_score": 0.015,
+        "candidate_k": 100,
+        "cache_similarity_threshold": 0.98,
+        "cache_ttl_seconds": 21_600,
+    }
+
+
+def test_ask_allows_safe_per_request_overrides(tmp_path: Path) -> None:
+    index_path = tmp_path / "vectors.sqlite3"
+    seed_index(
+        index_path,
+        [
+            make_record(
+                "request-body:0",
+                "Request Body",
+                "Request Body",
+                "Request body documentation.",
+                [1.0, 0.0],
+            )
+        ],
+    )
+    client = TestClient(
+        create_app(
+            index_path=index_path,
+            provider=FakeEmbeddingProvider([1.0, 0.0]),
+            generation_provider=FakeGenerationProvider(),
+        )
+    )
+
+    response = client.post(
+        "/ask",
+        json={
+            "query": "How do I create a request body?",
+            "preset": "economy",
+            "top_k": 2,
+            "minimum_score": 0.01,
+            "use_cache": False,
+        },
+    )
+
+    assert response.status_code == 200
+    controls = response.json()["cost_controls"]
+    assert controls["preset"] == "economy"
+    assert controls["top_k"] == 2
+    assert controls["minimum_score"] == 0.01
+
+
+def test_ask_rejects_unknown_cost_preset(tmp_path: Path) -> None:
+    client = TestClient(
+        create_app(
+            index_path=tmp_path / "vectors.sqlite3",
+            provider=FakeEmbeddingProvider([1.0]),
+            generation_provider=FakeGenerationProvider(),
+        )
+    )
+
+    response = client.post(
+        "/ask",
+        json={"query": "request body", "preset": "unlimited"},
+    )
+
+    assert response.status_code == 422

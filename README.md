@@ -347,6 +347,36 @@ Filters can be combined and repeated, including `--document-id`, `--provider`,
 `--model`, `--older-than-days`, and `--expired`. Invalidated rows are retained
 with their reason and an event record, so maintenance does not erase history.
 
+### Cost-control presets
+
+Every `/ask` request can select a version-controlled cost and quality preset:
+
+| Preset | Answer provider | Retrieved chunks | Cache behavior |
+| --- | --- | ---: | --- |
+| `economy` | Extractive, no LLM cost | 3 | 0.92 threshold, 7 days |
+| `balanced` | Local Ollama `qwen2.5:7b` | 5 | 0.95 threshold, 1 day |
+| `accuracy` | Local Ollama `qwen2.5:14b` | 8 | 0.98 threshold, 6 hours |
+
+`economy` is the default and works without Ollama or an API key. Select another
+preset in the request body:
+
+```bash
+curl -X POST http://127.0.0.1:8000/ask \
+  -H "Content-Type: application/json" \
+  -d '{
+    "query": "How do I create a request body?",
+    "preset": "balanced",
+    "category": "tutorial"
+  }'
+```
+
+The response includes `cost_controls`, which records the resolved preset,
+retrieval count, candidate count, minimum evidence score, cache threshold, and
+cache lifetime. `top_k` and `minimum_score` can still be overridden safely per
+request. Set `RAG_GENERATION_PROVIDER` to intentionally use one configured
+provider for all presets, or set `RAG_BALANCED_GENERATION_MODEL` and
+`RAG_ACCURACY_GENERATION_MODEL` to change the two local models.
+
 Run the automated checks with:
 
 ```bash
@@ -549,11 +579,11 @@ served from the cache, and unrelated cache entries remain reusable.
 
 ### Phase 9: Add configurable cost controls
 
-- [ ] Add `economy`, `balanced`, and `accuracy` presets.
+- [x] Add `economy`, `balanced`, and `accuracy` presets.
 - [ ] Make the cache threshold, cache lifetime, retrieval count, reranking,
   embedding provider, generation model, context limit, and answer limit
   configurable.
-- [ ] Use local embeddings by default so repeated query lookup does not require a
+- [x] Use local embeddings by default so repeated query lookup does not require a
   hosted embedding request.
 - [ ] Route high-confidence, straightforward questions to a lower-cost model.
 - [ ] Use a stronger model only for configured low-confidence or multi-source
