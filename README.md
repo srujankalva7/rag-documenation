@@ -297,8 +297,13 @@ Run the automated checks with:
 
 ```bash
 ruff check .
-pytest
+python -m pytest
 ```
+
+Running pytest through `python -m pytest` keeps the test runner on the same
+interpreter as the active virtual environment. The pytest configuration also
+adds the repository root to the import path so `app` and `scripts` resolve when
+a system-level `pytest` executable is accidentally invoked.
 
 ## Target data model
 
