@@ -248,8 +248,32 @@ curl -X POST http://127.0.0.1:8000/ask \
   }'
 ```
 
-To generate a synthesized answer with OpenAI, install the hosted dependency and
-configure the provider before starting Uvicorn:
+For synthesized answers without a paid API, install Ollama, download a local
+model, and start its local server:
+
+```bash
+ollama pull qwen2.5:7b
+ollama serve
+```
+
+In a second terminal, configure and start the RAG API. Ollama runs locally and
+does not require an OpenAI key:
+
+```bash
+source .venv/bin/activate
+export RAG_GENERATION_PROVIDER=ollama
+export RAG_GENERATION_MODEL=qwen2.5:7b
+export RAG_OLLAMA_BASE_URL=http://127.0.0.1:11434
+export RAG_OLLAMA_TIMEOUT_SECONDS=120
+uvicorn app.api.main:app --reload
+```
+
+Use `llama3.2:3b` instead when the computer needs a smaller model. The response
+reports Ollama's prompt and output token counts with an estimated generation
+cost of `$0.00`.
+
+OpenAI remains an optional provider. Install the hosted dependency and configure
+it only when you intentionally want to use a paid hosted model:
 
 ```bash
 python -m pip install -e '.[hosted]'

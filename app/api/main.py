@@ -24,6 +24,7 @@ from app.cache.store import SQLiteSemanticCache
 from app.generation.models import GenerationProvider
 from app.generation.providers import (
     ExtractiveGenerationProvider,
+    OllamaGenerationProvider,
     OpenAIGenerationProvider,
 )
 from app.generation.service import AnswerService
@@ -36,7 +37,8 @@ from app.retrieval.service import VectorRetriever
 
 DEFAULT_INDEX_PATH = Path("data/index/vectors.sqlite3")
 DEFAULT_MODEL = "BAAI/bge-small-en-v1.5"
-DEFAULT_GENERATION_MODEL = "gpt-4.1-mini"
+DEFAULT_OPENAI_MODEL = "gpt-4.1-mini"
+DEFAULT_OLLAMA_MODEL = "qwen2.5:7b"
 DEFAULT_CACHE_PATH = Path("data/cache/semantic_cache.sqlite3")
 
 
@@ -61,9 +63,15 @@ def _default_generation_provider() -> GenerationProvider:
     provider_name = os.environ.get("RAG_GENERATION_PROVIDER", "extractive")
     if provider_name == "extractive":
         return ExtractiveGenerationProvider()
+    if provider_name == "ollama":
+        return OllamaGenerationProvider(
+            model_name=os.environ.get("RAG_GENERATION_MODEL", DEFAULT_OLLAMA_MODEL),
+            base_url=os.environ.get("RAG_OLLAMA_BASE_URL", "http://127.0.0.1:11434"),
+            timeout_seconds=_optional_float("RAG_OLLAMA_TIMEOUT_SECONDS") or 120.0,
+        )
     if provider_name == "openai":
         return OpenAIGenerationProvider(
-            model_name=os.environ.get("RAG_GENERATION_MODEL", DEFAULT_GENERATION_MODEL),
+            model_name=os.environ.get("RAG_GENERATION_MODEL", DEFAULT_OPENAI_MODEL),
             input_cost_per_million=_optional_float("RAG_INPUT_COST_PER_MILLION"),
             output_cost_per_million=_optional_float("RAG_OUTPUT_COST_PER_MILLION"),
         )
