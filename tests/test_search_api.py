@@ -278,6 +278,23 @@ def test_ask_returns_grounded_answer_citations_and_usage(tmp_path: Path) -> None
     }
     assert value["estimated_cost_usd"] == 0.00002
     assert value["latency_ms"] >= 0
+    assert value["cache"]["status"] == "miss"
+    assert value["cache"]["hit"] is False
+    assert generation_provider.calls == 1
+
+    cached_response = client.post(
+        "/ask",
+        json={
+            "query": "How do I create a request body?",
+            "top_k": 1,
+            "category": "tutorial",
+        },
+    )
+    assert cached_response.status_code == 200
+    cached = cached_response.json()
+    assert cached["cache"]["status"] == "exact_hit"
+    assert cached["cache"]["hit"] is True
+    assert cached["usage"]["total_tokens"] == 0
     assert generation_provider.calls == 1
 
 

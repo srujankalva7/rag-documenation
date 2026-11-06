@@ -88,6 +88,7 @@ class AskRequest(BaseModel):
     top_k: int = Field(default=5, ge=1, le=10)
     category: str | None = Field(default=None, max_length=100)
     minimum_score: float = Field(default=0.02, ge=0)
+    use_cache: bool = True
 
     @field_validator("query")
     @classmethod
@@ -122,6 +123,14 @@ class UsageResponse(BaseModel):
     total_tokens: int
 
 
+class CacheMetadataResponse(BaseModel):
+    status: str
+    hit: bool
+    similarity: float | None = None
+    cached_at: str | None = None
+    avoided_generation_cost_usd: float | None = None
+
+
 class AskResponse(BaseModel):
     query: str
     answer: str
@@ -133,6 +142,7 @@ class AskResponse(BaseModel):
     usage: UsageResponse
     estimated_cost_usd: float | None
     latency_ms: float
+    cache: CacheMetadataResponse
 
 
 class HealthResponse(BaseModel):

@@ -1,11 +1,16 @@
 from __future__ import annotations
 
+import json
 from dataclasses import dataclass, field
+
+import httpx
+import pytest
 
 from app.generation.models import GenerationOutput, GenerationUsage
 from app.generation.prompts import SYSTEM_PROMPT, build_grounded_prompt
 from app.generation.providers import (
     ExtractiveGenerationProvider,
+    OllamaGenerationProvider,
     OpenAIGenerationProvider,
 )
 from app.generation.service import UNSUPPORTED_ANSWER, AnswerService
@@ -134,6 +139,44 @@ def test_extractive_provider_returns_zero_cost_evidence() -> None:
     assert output.answer.endswith("[1]")
     assert output.usage.total_tokens == 0
     assert output.estimated_cost_usd == 0.0
+
+
+def test_ollama_provider_returns_grounded_answer_and_usage() -> None:
+    def respond(request: httpx.Request) -> httpx.Response:
+        value = json.loads(request.content)
+        assert request.url.path == "/api/chat"
+        assert value["model"] == "qwen2.5:7b"
+        assert value["stream"] is False
+        assert value["messages"][0]["role"] == "system"
+        assert "Question:" in value["messages"][1]["content"]
+        return httpx.Response(
+            200,
+            json={
+                "message": {"content": "Use a Pydantic model. [1]"},
+                "prompt_eval_count": 120,
+                "eval_count": 20,
+            },
+        )
+
+    client = httpx.Client(transport=httpx.MockTransport(respond))
+    provider = OllamaGenerationProvider(client=client)
+
+    output = provider.generate("How do I declare a body?", [make_hybrid_result()])
+
+    assert output.answer == "Use a Pydantic model. [1]"
+    assert output.usage.total_tokens == 140
+    assert output.estimated_cost_usd == 0.0
+
+
+def test_ollama_provider_explains_connection_failure() -> None:
+    def fail(request: httpx.Request) -> httpx.Response:
+        raise httpx.ConnectError("connection refused", request=request)
+
+    client = httpx.Client(transport=httpx.MockTransport(fail))
+    provider = OllamaGenerationProvider(client=client)
+
+    with pytest.raises(RuntimeError, match="cannot reach Ollama"):
+        provider.generate("How do I declare a body?", [make_hybrid_result()])
 
 
 def test_openai_provider_reports_usage_and_configured_cost() -> None:

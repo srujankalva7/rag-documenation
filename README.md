@@ -248,8 +248,32 @@ curl -X POST http://127.0.0.1:8000/ask \
   }'
 ```
 
-To generate a synthesized answer with OpenAI, install the hosted dependency and
-configure the provider before starting Uvicorn:
+For synthesized answers without a paid API, install Ollama, download a local
+model, and start its local server:
+
+```bash
+ollama pull qwen2.5:7b
+ollama serve
+```
+
+In a second terminal, configure and start the RAG API. Ollama runs locally and
+does not require an OpenAI key:
+
+```bash
+source .venv/bin/activate
+export RAG_GENERATION_PROVIDER=ollama
+export RAG_GENERATION_MODEL=qwen2.5:7b
+export RAG_OLLAMA_BASE_URL=http://127.0.0.1:11434
+export RAG_OLLAMA_TIMEOUT_SECONDS=120
+uvicorn app.api.main:app --reload
+```
+
+Use `llama3.2:3b` instead when the computer needs a smaller model. The response
+reports Ollama's prompt and output token counts with an estimated generation
+cost of `$0.00`.
+
+OpenAI remains an optional provider. Install the hosted dependency and configure
+it only when you intentionally want to use a paid hosted model:
 
 ```bash
 python -m pip install -e '.[hosted]'
@@ -266,12 +290,44 @@ also include token usage, latency, supporting chunks, and canonical citations.
 Questions whose best hybrid score is below `minimum_score` are declined without
 calling the generation provider.
 
+### Semantic answer cache
+
+`POST /ask` now uses a persistent, version-aware cache before running retrieval
+and answer generation. It checks the normalized question for an exact match first,
+then compares a local query embedding with cached questions. A semantic hit is
+accepted only when it meets the configured threshold, has not expired, uses the
+same category and answer settings, and every supporting document hash is still
+current.
+
+The default cache is `data/cache/semantic_cache.sqlite3`. Configure it before
+starting the API:
+
+```bash
+export RAG_CACHE_ENABLED=true
+export RAG_CACHE_PATH=data/cache/semantic_cache.sqlite3
+export RAG_CACHE_SIMILARITY_THRESHOLD=0.95
+export RAG_CACHE_TTL_SECONDS=86400
+uvicorn app.api.main:app --reload
+```
+
+Each `/ask` response contains cache metadata. The status is `miss` on the first
+request, `exact_hit` for the same normalized question, `semantic_hit` for a safe
+paraphrase, or `disabled` when caching is bypassed. Cache hits report zero tokens
+and zero current generation cost, plus the avoided generation cost when it was
+available on the original response. Set `"use_cache": false` in an individual
+request to force retrieval and generation without deleting stored entries.
+
 Run the automated checks with:
 
 ```bash
 ruff check .
-pytest
+python -m pytest
 ```
+
+Running pytest through `python -m pytest` keeps the test runner on the same
+interpreter as the active virtual environment. The pytest configuration also
+adds the repository root to the import path so `app` and `scripts` resolve when
+a system-level `pytest` executable is accidentally invoked.
 
 ## Target data model
 
@@ -603,3 +659,4 @@ The first release is complete when:
 - Add multilingual retrieval and generation.
 - Compare local and hosted embedding, reranking, and generation models.
 - Deploy the service to Kubernetes after the single-service version is stable.
+

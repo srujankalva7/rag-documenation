@@ -15,3 +15,6 @@ data/chunks/*
 !data/chunks/.gitkeep
 data/index/*
 !data/index/.gitkeep
+data/cache/*
+!data/cache/.gitkeep
+

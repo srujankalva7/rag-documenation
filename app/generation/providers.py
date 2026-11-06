@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import os
 
+import httpx
+
 from app.generation.models import GenerationOutput, GenerationUsage
 from app.generation.prompts import SYSTEM_PROMPT, build_grounded_prompt
 from app.retrieval.models import HybridSearchResult
@@ -38,6 +40,86 @@ class ExtractiveGenerationProvider:
             evidence = evidence[: self.max_characters].rsplit(" ", 1)[0].rstrip() + "…"
         return GenerationOutput(
             answer=f"{evidence}\n\n[1]",
+            estimated_cost_usd=0.0,
+        )
+
+
+class OllamaGenerationProvider:
+    """Generate grounded answers with a model running locally in Ollama."""
+
+    def __init__(
+        self,
+        *,
+        model_name: str = "qwen2.5:7b",
+        base_url: str = "http://127.0.0.1:11434",
+        timeout_seconds: float = 120.0,
+        client: httpx.Client | None = None,
+    ) -> None:
+        if not model_name.strip():
+            raise ValueError("model_name cannot be empty")
+        if not base_url.strip():
+            raise ValueError("base_url cannot be empty")
+        if timeout_seconds <= 0:
+            raise ValueError("timeout_seconds must be positive")
+        self._model_name = model_name
+        self.base_url = base_url.rstrip("/")
+        self._client = client or httpx.Client(timeout=timeout_seconds)
+
+    @property
+    def provider_name(self) -> str:
+        return "ollama"
+
+    @property
+    def model_name(self) -> str:
+        return self._model_name
+
+    def generate(
+        self,
+        question: str,
+        contexts: list[HybridSearchResult],
+    ) -> GenerationOutput:
+        try:
+            response = self._client.post(
+                f"{self.base_url}/api/chat",
+                json={
+                    "model": self.model_name,
+                    "stream": False,
+                    "messages": [
+                        {"role": "system", "content": SYSTEM_PROMPT},
+                        {
+                            "role": "user",
+                            "content": build_grounded_prompt(question, contexts),
+                        },
+                    ],
+                    "options": {"temperature": 0},
+                },
+            )
+            response.raise_for_status()
+        except (httpx.ConnectError, httpx.TimeoutException) as error:
+            raise RuntimeError(
+                "cannot reach Ollama; start it with `ollama serve` and make sure "
+                f"the model `{self.model_name}` is installed"
+            ) from error
+        except httpx.HTTPStatusError as error:
+            raise RuntimeError(
+                f"Ollama request failed with status {error.response.status_code}"
+            ) from error
+
+        try:
+            value = response.json()
+            answer = str(value["message"]["content"]).strip()
+        except (KeyError, TypeError, ValueError) as error:
+            raise RuntimeError("Ollama returned an invalid response") from error
+        if not answer:
+            raise RuntimeError("generation provider returned an empty answer")
+
+        usage = GenerationUsage(
+            input_tokens=int(value.get("prompt_eval_count", 0) or 0),
+            output_tokens=int(value.get("eval_count", 0) or 0),
+        )
+        return GenerationOutput(
+            answer=answer,
+            usage=usage,
             estimated_cost_usd=0.0,
         )
 
