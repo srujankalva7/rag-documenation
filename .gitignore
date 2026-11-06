@@ -17,4 +17,6 @@ data/index/*
 !data/index/.gitkeep
 data/cache/*
 !data/cache/.gitkeep
+data/evaluation/results/*
+!data/evaluation/results/.gitkeep
 

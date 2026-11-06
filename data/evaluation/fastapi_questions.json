@@ -1,0 +1,182 @@
+[
+  {
+    "id": "request-body-model",
+    "question": "How do I declare a JSON request body with a Pydantic model?",
+    "expected_document_ids": ["request-body"],
+    "category": "tutorial"
+  },
+  {
+    "id": "path-parameter-enum",
+    "question": "How can I restrict a FastAPI path parameter to enum values?",
+    "expected_document_ids": ["path-parameters"],
+    "category": "tutorial"
+  },
+  {
+    "id": "optional-query-parameter",
+    "question": "How do I make a query parameter optional?",
+    "expected_document_ids": ["query-parameters"],
+    "category": "tutorial"
+  },
+  {
+    "id": "query-string-min-length",
+    "question": "How can I validate the minimum length of a query string?",
+    "expected_document_ids": ["query-string-validations"],
+    "category": "tutorial"
+  },
+  {
+    "id": "path-number-range",
+    "question": "How do I require a numeric path parameter to be greater than zero?",
+    "expected_document_ids": ["path-numeric-validations"],
+    "category": "tutorial"
+  },
+  {
+    "id": "multiple-body-parameters",
+    "question": "Can a FastAPI endpoint accept multiple body parameters?",
+    "expected_document_ids": ["body-multiple-parameters"],
+    "category": "tutorial"
+  },
+  {
+    "id": "nested-pydantic-model",
+    "question": "How do I nest one Pydantic model inside another request model?",
+    "expected_document_ids": ["body-nested-models"],
+    "category": "tutorial"
+  },
+  {
+    "id": "response-model-filtering",
+    "question": "How does response_model filter the data returned by an endpoint?",
+    "expected_document_ids": ["response-model"],
+    "category": "tutorial"
+  },
+  {
+    "id": "custom-status-code",
+    "question": "How do I set the default HTTP status code for a path operation?",
+    "expected_document_ids": ["response-status-code"],
+    "category": "tutorial"
+  },
+  {
+    "id": "upload-file",
+    "question": "How do I receive an uploaded file without loading all of it into memory?",
+    "expected_document_ids": ["request-files"],
+    "category": "tutorial"
+  },
+  {
+    "id": "forms-and-files",
+    "question": "How can one endpoint receive both form fields and uploaded files?",
+    "expected_document_ids": ["request-forms-and-files"],
+    "category": "tutorial"
+  },
+  {
+    "id": "http-exception",
+    "question": "How do I return an HTTP error to a FastAPI client?",
+    "expected_document_ids": ["handling-errors"],
+    "category": "tutorial"
+  },
+  {
+    "id": "partial-update",
+    "question": "How should I implement a partial update with PATCH and model_dump?",
+    "expected_document_ids": ["body-updates"],
+    "category": "tutorial"
+  },
+  {
+    "id": "dependency-injection",
+    "question": "How does dependency injection with Depends work in FastAPI?",
+    "expected_document_ids": ["dependencies"],
+    "category": "tutorial"
+  },
+  {
+    "id": "dependency-cleanup",
+    "question": "How do I run cleanup code after a dependency finishes?",
+    "expected_document_ids": ["dependencies-with-yield"],
+    "category": "tutorial"
+  },
+  {
+    "id": "oauth2-bearer-token",
+    "question": "How do I read a bearer token with OAuth2PasswordBearer?",
+    "expected_document_ids": ["security-first-steps"],
+    "category": "tutorial"
+  },
+  {
+    "id": "jwt-authentication",
+    "question": "How do I implement password hashing and JWT authentication?",
+    "expected_document_ids": ["oauth2-jwt"],
+    "category": "tutorial"
+  },
+  {
+    "id": "cors-origins",
+    "question": "How do I allow specific browser origins with CORS middleware?",
+    "expected_document_ids": ["cors"],
+    "category": "tutorial"
+  },
+  {
+    "id": "background-task",
+    "question": "How can I run a small task after returning an HTTP response?",
+    "expected_document_ids": ["background-tasks"],
+    "category": "tutorial"
+  },
+  {
+    "id": "static-files",
+    "question": "How do I mount a directory of static files in FastAPI?",
+    "expected_document_ids": ["static-files"],
+    "category": "tutorial"
+  },
+  {
+    "id": "test-client",
+    "question": "How do I test a FastAPI endpoint with TestClient and pytest?",
+    "expected_document_ids": ["testing"],
+    "category": "tutorial"
+  },
+  {
+    "id": "websocket-endpoint",
+    "question": "How do I create a WebSocket endpoint that accepts messages?",
+    "expected_document_ids": ["websockets"],
+    "category": "advanced"
+  },
+  {
+    "id": "lifespan-startup-shutdown",
+    "question": "How should I manage application startup and shutdown with lifespan?",
+    "expected_document_ids": ["lifespan-events"],
+    "category": "advanced"
+  },
+  {
+    "id": "dependency-override-testing",
+    "question": "How can I override a dependency during a test?",
+    "expected_document_ids": ["testing-dependencies"],
+    "category": "advanced"
+  },
+  {
+    "id": "async-tests",
+    "question": "How do I write asynchronous tests for a FastAPI application?",
+    "expected_document_ids": ["async-tests"],
+    "category": "advanced"
+  },
+  {
+    "id": "settings-environment",
+    "question": "How do I load application settings from environment variables?",
+    "expected_document_ids": ["settings-environment-variables"],
+    "category": "advanced"
+  },
+  {
+    "id": "custom-middleware",
+    "question": "How do I add ASGI middleware to a FastAPI application?",
+    "expected_document_ids": ["advanced-middleware", "middleware"],
+    "category": "advanced"
+  },
+  {
+    "id": "run-uvicorn",
+    "question": "How do I run a FastAPI application manually with Uvicorn?",
+    "expected_document_ids": ["run-server-manually"],
+    "category": "deployment"
+  },
+  {
+    "id": "multiple-workers",
+    "question": "How can I run FastAPI with multiple worker processes?",
+    "expected_document_ids": ["server-workers"],
+    "category": "deployment"
+  },
+  {
+    "id": "docker-container",
+    "question": "How should I build and run a FastAPI application in Docker?",
+    "expected_document_ids": ["docker"],
+    "category": "deployment"
+  }
+]

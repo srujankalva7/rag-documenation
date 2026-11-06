@@ -377,6 +377,39 @@ request. Set `RAG_GENERATION_PROVIDER` to intentionally use one configured
 provider for all presets, or set `RAG_BALANCED_GENERATION_MODEL` and
 `RAG_ACCURACY_GENERATION_MODEL` to change the two local models.
 
+### Evaluation runner
+
+The versioned dataset at `data/evaluation/fastapi_questions.json` contains 30
+questions with expected FastAPI document IDs. With the API running, evaluate the
+zero-cost preset and export a machine-readable report:
+
+```bash
+python -m scripts.evaluate --preset economy
+```
+
+The default output is `data/evaluation/results/latest.json`. Each result records
+the relevant-document rank, Hit@3, Hit@5, reciprocal rank, citation correctness,
+support decision, cache status, server and wall latency, estimated generation
+cost, and estimated avoided cost. Aggregate summaries include MRR, citation
+accuracy, p95 latency, and exact and semantic cache-hit rates.
+
+Compare all three presets after installing both configured Ollama models:
+
+```bash
+ollama pull qwen2.5:7b
+ollama pull qwen2.5:14b
+python -m scripts.evaluate
+```
+
+To measure cache reuse, run each question twice while allowing cache access:
+
+```bash
+python -m scripts.evaluate --preset economy --repeat 2 --use-cache
+```
+
+Generation and avoided costs are explicitly labeled as estimates. They are not
+reported as provider-billed actual spend.
+
 Run the automated checks with:
 
 ```bash
@@ -429,7 +462,7 @@ acceptance criteria pass.
   correctness, cache precision, latency, and cost per uncached question.
 - [ ] Define what counts as an unsupported answer and when the application must
   respond that it lacks enough evidence.
-- [ ] Create at least 30 evaluation questions and record the expected source page
+- [x] Create at least 30 evaluation questions and record the expected source page
   or section for each one.
 
 **Acceptance criteria:** The source manifest, evaluation dataset, and measurable
@@ -514,7 +547,7 @@ correct page or section.
 - [ ] Add an optional reranking interface that can be disabled.
 - [ ] Implement `POST /search` so retrieval can be inspected without calling an
   LLM.
-- [ ] Run the evaluation dataset and calculate Hit Rate at 3, Hit Rate at 5,
+- [x] Run the evaluation dataset and calculate Hit Rate at 3, Hit Rate at 5,
   Mean Reciprocal Rank, and latency.
 - [ ] Tune chunking and retrieval settings using evaluation results rather than
   individual demonstration questions.
@@ -600,14 +633,14 @@ limits are enforced, and the chosen settings are recorded with every request.
 - [ ] Store actual embedding, reranking, and generation usage separately.
 - [ ] Calculate actual request cost from versioned provider pricing configured by
   the application.
-- [ ] For cache hits, calculate the estimated generation cost avoided using a
+- [x] For cache hits, calculate the estimated generation cost avoided using a
   documented baseline.
 - [ ] Keep actual cost and estimated avoided cost as separate metrics.
 - [ ] Measure exact-cache hit rate, semantic-cache hit rate, retrieval quality,
   answer faithfulness, citation correctness, latency, and user feedback.
 - [ ] Track incorrect semantic-cache matches as a primary safety metric.
-- [ ] Compare economy, balanced, and accuracy presets on the same evaluation set.
-- [ ] Export evaluation results in a machine-readable format.
+- [x] Compare economy, balanced, and accuracy presets on the same evaluation set.
+- [x] Export evaluation results in a machine-readable format.
 
 **Acceptance criteria:** A repeatable evaluation run produces comparable quality,
 latency, and cost results for all presets without presenting estimated savings as
