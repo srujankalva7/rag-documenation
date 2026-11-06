@@ -188,7 +188,19 @@ class CachedAnswerService:
         category: str | None = None,
         minimum_score: float = 0.02,
         use_cache: bool = True,
+        similarity_threshold: float | None = None,
+        ttl_seconds: int | None = None,
     ) -> AnswerResult:
+        resolved_threshold = (
+            self.similarity_threshold
+            if similarity_threshold is None
+            else similarity_threshold
+        )
+        resolved_ttl = self.ttl_seconds if ttl_seconds is None else ttl_seconds
+        if not 0 <= resolved_threshold <= 1:
+            raise ValueError("similarity_threshold must be between 0 and 1")
+        if resolved_ttl < 1:
+            raise ValueError("ttl_seconds must be positive")
         if not use_cache:
             return self.answer_service.ask(
                 question,
@@ -240,7 +252,7 @@ class CachedAnswerService:
             reverse=True,
         )
         for similarity, entry in ranked:
-            if similarity < self.similarity_threshold:
+            if similarity < resolved_threshold:
                 break
             if not self._is_current(entry, current_versions):
                 self.cache.invalidate(entry.entry_id, "document_version_changed")
@@ -290,6 +302,6 @@ class CachedAnswerService:
                     answer_payload=_serialize_answer(generated),
                     source_versions=source_versions,
                     generation_cost_usd=generated.estimated_cost_usd,
-                    ttl_seconds=self.ttl_seconds,
+                    ttl_seconds=resolved_ttl,
                 )
         return replace(generated, cache_status=CacheStatus.miss.value)

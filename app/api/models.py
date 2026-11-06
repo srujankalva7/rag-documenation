@@ -6,6 +6,8 @@ from enum import StrEnum
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
+from app.costs.presets import CostPreset
+
 
 class SearchMode(StrEnum):
     hybrid = "hybrid"
@@ -85,9 +87,10 @@ class SearchResponse(BaseModel):
 
 class AskRequest(BaseModel):
     query: str = Field(min_length=1, max_length=2000)
-    top_k: int = Field(default=5, ge=1, le=10)
+    preset: CostPreset = CostPreset.economy
+    top_k: int | None = Field(default=None, ge=1, le=10)
     category: str | None = Field(default=None, max_length=100)
-    minimum_score: float = Field(default=0.02, ge=0)
+    minimum_score: float | None = Field(default=None, ge=0)
     use_cache: bool = True
 
     @field_validator("query")
@@ -131,6 +134,15 @@ class CacheMetadataResponse(BaseModel):
     avoided_generation_cost_usd: float | None = None
 
 
+class CostControlsResponse(BaseModel):
+    preset: CostPreset
+    top_k: int
+    minimum_score: float
+    candidate_k: int
+    cache_similarity_threshold: float
+    cache_ttl_seconds: int
+
+
 class AskResponse(BaseModel):
     query: str
     answer: str
@@ -143,6 +155,7 @@ class AskResponse(BaseModel):
     estimated_cost_usd: float | None
     latency_ms: float
     cache: CacheMetadataResponse
+    cost_controls: CostControlsResponse
 
 
 class HealthResponse(BaseModel):

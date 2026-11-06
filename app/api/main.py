@@ -12,6 +12,7 @@ from app.api.models import (
     AskResponse,
     CacheMetadataResponse,
     CitationResponse,
+    CostControlsResponse,
     HealthResponse,
     SearchMode,
     SearchRequest,
@@ -21,6 +22,7 @@ from app.api.models import (
 )
 from app.cache.service import CachedAnswerService
 from app.cache.store import SQLiteSemanticCache
+from app.costs.presets import CostPreset, PresetSettings, get_preset
 from app.generation.models import GenerationProvider
 from app.generation.providers import (
     ExtractiveGenerationProvider,
@@ -78,6 +80,21 @@ def _default_generation_provider() -> GenerationProvider:
     raise ValueError(f"unknown RAG_GENERATION_PROVIDER: {provider_name}")
 
 
+def _preset_generation_provider(settings: PresetSettings) -> GenerationProvider:
+    if os.environ.get("RAG_GENERATION_PROVIDER"):
+        return _default_generation_provider()
+    if settings.generation_provider == "extractive":
+        return ExtractiveGenerationProvider()
+    return OllamaGenerationProvider(
+        model_name=os.environ.get(
+            f"RAG_{settings.name.value.upper()}_GENERATION_MODEL",
+            settings.generation_model,
+        ),
+        base_url=os.environ.get("RAG_OLLAMA_BASE_URL", "http://127.0.0.1:11434"),
+        timeout_seconds=_optional_float("RAG_OLLAMA_TIMEOUT_SECONDS") or 120.0,
+    )
+
+
 def _response_item(
     value: SearchResult | HybridSearchResult,
 ) -> SearchResultResponse:
@@ -111,11 +128,6 @@ def create_app(
     store = SQLiteVectorIndex(resolved_path)
     vector_retriever = VectorRetriever(embedding_provider, store)
     keyword_retriever = KeywordRetriever(store)
-    hybrid_retriever = HybridRetriever(vector_retriever, keyword_retriever)
-    answer_service = AnswerService(
-        hybrid_retriever,
-        generation_provider or _default_generation_provider(),
-    )
     configured_cache_path = os.environ.get("RAG_CACHE_PATH")
     resolved_cache_path = cache_path or (
         Path(configured_cache_path)
@@ -126,14 +138,23 @@ def create_app(
             else DEFAULT_CACHE_PATH
         )
     )
-    cached_answer_service = CachedAnswerService(
-        answer_service,
-        SQLiteSemanticCache(resolved_cache_path),
-        embedding_provider,
-        store.current_document_hashes,
-        similarity_threshold=_optional_float("RAG_CACHE_SIMILARITY_THRESHOLD") or 0.95,
-        ttl_seconds=_optional_int("RAG_CACHE_TTL_SECONDS", 86_400),
-    )
+    cached_answer_services = {}
+    for preset in CostPreset:
+        settings = get_preset(preset)
+        answer_service = AnswerService(
+            HybridRetriever(
+                vector_retriever,
+                keyword_retriever,
+                candidate_k=settings.candidate_k,
+            ),
+            generation_provider or _preset_generation_provider(settings),
+        )
+        cached_answer_services[preset] = CachedAnswerService(
+            answer_service,
+            SQLiteSemanticCache(resolved_cache_path),
+            embedding_provider,
+            store.current_document_hashes,
+        )
     cache_enabled = _environment_flag("RAG_CACHE_ENABLED")
 
     application = FastAPI(
@@ -196,13 +217,27 @@ def create_app(
 
     @application.post("/ask", response_model=AskResponse)
     def ask(request: AskRequest) -> AskResponse:
+        settings = get_preset(request.preset)
+        top_k = request.top_k if request.top_k is not None else settings.top_k
+        minimum_score = (
+            request.minimum_score
+            if request.minimum_score is not None
+            else settings.minimum_score
+        )
         try:
-            result = cached_answer_service.ask(
+            result = cached_answer_services[request.preset].ask(
                 request.query,
-                top_k=request.top_k,
+                top_k=top_k,
                 category=request.category,
-                minimum_score=request.minimum_score,
+                minimum_score=minimum_score,
                 use_cache=request.use_cache and cache_enabled,
+                similarity_threshold=(
+                    _optional_float("RAG_CACHE_SIMILARITY_THRESHOLD")
+                    or settings.cache_similarity_threshold
+                ),
+                ttl_seconds=_optional_int(
+                    "RAG_CACHE_TTL_SECONDS", settings.cache_ttl_seconds
+                ),
             )
         except RetrievalError as error:
             raise HTTPException(status_code=503, detail=str(error)) from error
@@ -243,6 +278,19 @@ def create_app(
                 similarity=result.cache_similarity,
                 cached_at=result.cached_at,
                 avoided_generation_cost_usd=result.avoided_generation_cost_usd,
+            ),
+            cost_controls=CostControlsResponse(
+                preset=settings.name,
+                top_k=top_k,
+                minimum_score=minimum_score,
+                candidate_k=settings.candidate_k,
+                cache_similarity_threshold=(
+                    _optional_float("RAG_CACHE_SIMILARITY_THRESHOLD")
+                    or settings.cache_similarity_threshold
+                ),
+                cache_ttl_seconds=_optional_int(
+                    "RAG_CACHE_TTL_SECONDS", settings.cache_ttl_seconds
+                ),
             ),
         )
 
