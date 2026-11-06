@@ -19,6 +19,7 @@ class IndexingSummary:
     unchanged: int
     removed: int
     orphaned_embeddings_removed: int
+    changed_documents: tuple[str, ...] = ()
     dry_run: bool = False
 
 
@@ -76,6 +77,27 @@ class IndexingPipeline:
 
         transient = dry_run and not self.store.path.exists()
         with self.store.connect(transient=transient) as connection:
+            previous_documents = self.store.document_hashes(connection)
+            desired_documents = {
+                record.document_id: record.document_hash for record in records
+            }
+            compared_ids = (
+                set(previous_documents) | set(desired_documents)
+                if document_id is None
+                else document_ids
+            )
+            changed_documents = tuple(
+                sorted(
+                    compared_ids
+                    if rebuild
+                    else {
+                        current_id
+                        for current_id in compared_ids
+                        if previous_documents.get(current_id)
+                        != desired_documents.get(current_id)
+                    }
+                )
+            )
             if rebuild and not dry_run:
                 self.store.clear(connection)
             current_chunks = {} if rebuild else self.store.chunk_hashes(connection)
@@ -110,6 +132,7 @@ class IndexingPipeline:
                     unchanged=unchanged,
                     removed=removed,
                     orphaned_embeddings_removed=0,
+                    changed_documents=changed_documents,
                     dry_run=True,
                 )
 
@@ -147,4 +170,5 @@ class IndexingPipeline:
                 unchanged=unchanged,
                 removed=removed,
                 orphaned_embeddings_removed=orphaned,
+                changed_documents=changed_documents,
             )

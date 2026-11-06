@@ -214,9 +214,12 @@ class SQLiteVectorIndex:
         if not self.path.is_file():
             return {}
         with self.connect() as connection:
-            rows = connection.execute(
-                "SELECT DISTINCT document_id, document_hash FROM chunks"
-            ).fetchall()
+            return self.document_hashes(connection)
+
+    def document_hashes(self, connection: sqlite3.Connection) -> dict[str, str]:
+        rows = connection.execute(
+            "SELECT DISTINCT document_id, document_hash FROM chunks"
+        ).fetchall()
         hashes: dict[str, str] = {}
         for row in rows:
             document_id = str(row["document_id"])
