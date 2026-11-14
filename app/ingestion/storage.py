@@ -9,7 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Literal
 
-from app.ingestion.models import Document, Source
+from app.ingestion.models import Document, DocumentSource
 
 SaveStatus = Literal["created", "updated", "unchanged"]
 
@@ -44,19 +44,19 @@ class DocumentStorage:
     documents_dir: Path
     versions_dir: Path
 
-    def raw_path(self, source: Source) -> Path:
+    def raw_path(self, source: DocumentSource) -> Path:
         return self.raw_dir / f"{source.id}.html"
 
-    def document_path(self, source: Source) -> Path:
+    def document_path(self, source: DocumentSource) -> Path:
         return self.documents_dir / f"{source.id}.json"
 
-    def load_raw(self, source: Source) -> str:
+    def load_raw(self, source: DocumentSource) -> str:
         return self.raw_path(source).read_text(encoding="utf-8")
 
-    def save_raw(self, source: Source, html: str) -> None:
+    def save_raw(self, source: DocumentSource, html: str) -> None:
         _atomic_write(self.raw_path(source), html)
 
-    def save_document(self, source: Source, document: Document) -> SaveStatus:
+    def save_document(self, source: DocumentSource, document: Document) -> SaveStatus:
         current_path = self.document_path(source)
         new_value = document.to_dict()
 

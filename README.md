@@ -1,8 +1,9 @@
 # Cost-Optimized RAG Documentation Assistant
 
-A configurable Retrieval-Augmented Generation (RAG) assistant that answers
-technical questions from the official FastAPI documentation, cites its sources,
-and minimizes LLM spending with exact and semantic caching.
+A configurable Retrieval-Augmented Generation (RAG) assistant that can ingest a
+public documentation website, answer questions from its content, cite its
+sources, and minimize LLM spending with exact and semantic caching. The official
+FastAPI documentation remains the reference implementation and evaluation set.
 
 ## Project goal
 
@@ -16,9 +17,10 @@ Build a documentation assistant that:
 - Lets users choose between economy, balanced, and accuracy-focused settings.
 - Measures retrieval quality, answer quality, latency, and estimated cost savings.
 
-The initial knowledge base will contain the official FastAPI tutorial and guides.
-The ingestion and retrieval components should remain reusable so that other
-documentation sets can be added later.
+The initial knowledge base contains the official FastAPI tutorial and guides.
+Generic site ingestion can now discover and normalize another public website
+from its homepage URL; multi-site retrieval and the generated chat widget are
+implemented in later phases.
 
 ## Why this project exists
 
@@ -98,6 +100,80 @@ directory placeholders and source manifest are committed.
 The command exits with a nonzero status when any page fails. A single failed page
 is recorded and reported without preventing the remaining sources from being
 processed.
+
+### Generic site ingestion
+
+Ingest a public HTML website using only its homepage URL:
+
+```bash
+python -m scripts.ingest_site \
+  --url https://docs.example.com \
+  --max-pages 100 \
+  --max-depth 3
+```
+
+The crawler reads `robots.txt`, checks advertised or conventional sitemaps, and
+then follows same-site links within the configured depth. It ignores common
+binary assets, fragments, query-string variants, `nofollow` links, login/account
+paths, non-HTML responses, and pages outside the approved domains. Requests are
+spaced by 0.5 seconds by default. Direct private-network targets and redirects to
+private targets are rejected.
+
+Each site is written independently under `data/sites/<site-id>`:
+
+```text
+data/sites/docs-example-com/
+├── site.json
+├── raw/
+├── documents/
+└── versions/
+```
+
+Preview discovery and parsing without writing files:
+
+```bash
+python -m scripts.ingest_site \
+  --url https://docs.example.com \
+  --max-pages 10 \
+  --dry-run
+```
+
+Limit discovery to useful documentation paths or explicitly exclude paths:
+
+```bash
+python -m scripts.ingest_site \
+  --url https://docs.example.com \
+  --site-id example-docs \
+  --include-path /docs/ \
+  --exclude-path /docs/archive/ \
+  --allowed-domain docs.example.com
+```
+
+Re-run the saved configuration to detect content changes and preserve previous
+document versions:
+
+```bash
+python -m scripts.ingest_site \
+  --config data/sites/example-docs/site.json
+```
+
+The normalized files use the existing document schema, so one site can already
+be chunked and indexed into its own local index:
+
+```bash
+python -m scripts.chunk_documents \
+  --documents-dir data/sites/example-docs/documents \
+  --output-dir data/sites/example-docs/chunks
+
+python -m scripts.index_documents \
+  --chunks-dir data/sites/example-docs/chunks \
+  --index-path data/sites/example-docs/vectors.sqlite3 \
+  --cache-path data/sites/example-docs/cache.sqlite3
+```
+
+This branch intentionally supports public server-rendered HTML first. Browser
+rendering for JavaScript-only sites, PDFs, authenticated pages, and simultaneous
+multi-site retrieval remain separate additions.
 
 ### Document chunking
 

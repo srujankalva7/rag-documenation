@@ -5,7 +5,7 @@ from __future__ import annotations
 import re
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
-from typing import Any
+from typing import Any, Protocol
 from urllib.parse import urlparse
 
 ALLOWED_CATEGORIES = {"tutorial", "advanced", "deployment", "how-to", "reference"}
@@ -15,6 +15,13 @@ ID_PATTERN = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*\Z")
 
 class SourceValidationError(ValueError):
     """Raised when a source manifest entry is unsafe or malformed."""
+
+
+class DocumentSource(Protocol):
+    id: str
+    title: str
+    url: str
+    category: str
 
 
 @dataclass(frozen=True, slots=True)
@@ -97,7 +104,7 @@ class Document:
     def create(
         cls,
         *,
-        source: Source,
+        source: DocumentSource,
         content_hash: str,
         sections: list[Section],
         scraped_at: datetime | None = None,
